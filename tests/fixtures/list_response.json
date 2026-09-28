@@ -1,0 +1,151 @@
+{
+  "respons_dato_tid": "/Date(1790590529297+0200)/",
+  "versjon": "1.6",
+  "sesjon_id": "2024-2025",
+  "sporsmal_liste": [
+    {
+      "respons_dato_tid": "/Date(1790589727329+0200)/",
+      "versjon": "1.6",
+      "besvart_av": {
+        "respons_dato_tid": "/Date(1790587494911+0200)/",
+        "versjon": "1.6",
+        "doedsdato": null,
+        "etternavn": "Stoltenberg",
+        "foedselsdato": "/Date(-340765200000+0100)/",
+        "fornavn": "Jens",
+        "id": "JES",
+        "kjoenn": 2
+      },
+      "besvart_av_minister_id": "FIN",
+      "besvart_av_minister_tittel": "finansministeren",
+      "besvart_dato": "/Date(1759989109780+0200)/",
+      "besvart_pa_vegne_av": null,
+      "besvart_pa_vegne_av_minister_id": null,
+      "besvart_pa_vegne_av_minister_tittel": null,
+      "datert_dato": "/Date(1759234887245+0200)/",
+      "emne_liste": [],
+      "flyttet_til": 0,
+      "fremsatt_av_annen": null,
+      "id": 108815,
+      "legacy_id": 104761,
+      "rette_vedkommende": null,
+      "rette_vedkommende_minister_id": null,
+      "rette_vedkommende_minister_tittel": null,
+      "sendt_dato": "/Date(1759241678190+0200)/",
+      "sesjon_id": "2024-2025",
+      "sporsmal_fra": {
+        "respons_dato_tid": "/Date(1790589727329+0200)/",
+        "versjon": "1.6",
+        "doedsdato": null,
+        "etternavn": "Bjørnstad",
+        "foedselsdato": "/Date(654904800000+0200)/",
+        "fornavn": "Sivert",
+        "id": "SHB",
+        "kjoenn": 2,
+        "fylke": {
+          "respons_dato_tid": "/Date(1790571219072+0200)/",
+          "versjon": "1.6",
+          "historisk_fylke": false,
+          "id": "ST",
+          "navn": "Sør-Trøndelag"
+        },
+        "parti": {
+          "respons_dato_tid": "/Date(1790550018079+0200)/",
+          "versjon": "1.6",
+          "id": "FrP",
+          "navn": "Fremskrittspartiet",
+          "representert_parti": true
+        },
+        "vara_representant": false
+      },
+      "sporsmal_nummer": 3234,
+      "sporsmal_til": {
+        "respons_dato_tid": "/Date(1790587494911+0200)/",
+        "versjon": "1.6",
+        "doedsdato": null,
+        "etternavn": "Stoltenberg",
+        "foedselsdato": "/Date(-340765200000+0100)/",
+        "fornavn": "Jens",
+        "id": "JES",
+        "kjoenn": 2
+      },
+      "sporsmal_til_minister_id": "FIN",
+      "sporsmal_til_minister_tittel": "finansministeren",
+      "status": 1,
+      "tittel": "Jeg viser til svar på skriftlig spørsmål 3167 fra representanten Ola Borten Moe, hvor det opplyses om at selvfinansieringsgraden på det svenske jobbskatteavdraget isolert sett er på om lag 11 prosent.\r\nInkluderer dette tallet kun økt skatteinngang fra det økte arbeidstilbudet, eller inkluderer det også effekten av mindre offentlig utbetaling av for eksempel trygder og andre ytelser som følge av fradraget, og hvis dette ikke er inkludert, hva anslår regjeringen vil være effekten på dette ved en tilsvarende ordning i Norge?",
+      "type": 5
+    },
+    {
+      "respons_dato_tid": "/Date(1790589727329+0200)/",
+      "versjon": "1.6",
+      "besvart_av": {
+        "respons_dato_tid": "/Date(1790586210731+0200)/",
+        "versjon": "1.6",
+        "doedsdato": null,
+        "etternavn": "Nygård",
+        "foedselsdato": "/Date(94777200000+0100)/",
+        "fornavn": "Jon-Ivar",
+        "id": "JONN",
+        "kjoenn": 2
+      },
+      "besvart_av_minister_id": "SD",
+      "besvart_av_minister_tittel": "samferdselsministeren",
+      "besvart_dato": "/Date(1759818441468+0200)/",
+      "besvart_pa_vegne_av": null,
+      "besvart_pa_vegne_av_minister_id": null,
+      "besvart_pa_vegne_av_minister_tittel": null,
+      "datert_dato": "/Date(1759234690587+0200)/",
+      "emne_liste": [],
+      "flyttet_til": 0,
+      "fremsatt_av_annen": null,
+      "id": 108814,
+      "legacy_id": 104760,
+      "rette_vedkommende": null,
+      "rette_vedkommende_minister_id": null,
+      "rette_vedkommende_minister_tittel": null,
+      "sendt_dato": "/Date(1759240221071+0200)/",
+      "sesjon_id": "2024-2025",
+      "sporsmal_fra": {
+        "respons_dato_tid": "/Date(1790589727329+0200)/",
+        "versjon": "1.6",
+        "doedsdato": null,
+        "etternavn": "Gjelsvik",
+        "foedselsdato": "/Date(133830000000+0100)/",
+        "fornavn": "Sigbjørn",
+        "id": "SIGJE",
+        "kjoenn": 2,
+        "fylke": {
+          "respons_dato_tid": "/Date(1790571219072+0200)/",
+          "versjon": "1.6",
+          "historisk_fylke": false,
+          "id": "Ak",
+          "navn": "Akershus"
+        },
+        "parti": {
+          "respons_dato_tid": "/Date(1790550018079+0200)/",
+          "versjon": "1.6",
+          "id": "Sp",
+          "navn": "Senterpartiet",
+          "representert_parti": true
+        },
+        "vara_representant": false
+      },
+      "sporsmal_nummer": 3233,
+      "sporsmal_til": {
+        "respons_dato_tid": "/Date(1790586210731+0200)/",
+        "versjon": "1.6",
+        "doedsdato": null,
+        "etternavn": "Nygård",
+        "foedselsdato": "/Date(94777200000+0100)/",
+        "fornavn": "Jon-Ivar",
+        "id": "JONN",
+        "kjoenn": 2
+      },
+      "sporsmal_til_minister_id": "SD",
+      "sporsmal_til_minister_tittel": "samferdselsministeren",
+      "status": 1,
+      "tittel": "Hvordan vil regjeringen i lys av dagens sikkerhetspolitiske bilde, \"sørge for at staten i sine anskaffelsesrutiner legge vekt på sikkerhetsaspektene, og etablere risikobaserte vurderingskriterier for anskaffelse av programvare og droneteknologi fra leverandører i land Norge ikke har sikkerhetspolitisk samarbeid med\", vil regjeringen vurdere å forby bruk av droner fra land Norge ikke har sikkerhetssamarbeid med i bestemte sektorer, områder e.l, og hvordan vil man bidra til å styrke nasjonal produksjon og kapasiteter av droner?",
+      "type": 5
+    }
+  ]
+}
