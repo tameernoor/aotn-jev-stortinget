@@ -1,16 +1,15 @@
-"""Turns Jev's 18 noul values for one pair into an outcome, per
-docs/questions-design.md section 4. The logic below is that section's code
-verbatim (same order, same reasons, same thresholds), with one addition the
-design's own listing does not need but run.py's output does: which ids the rules
-actually read. That mirrors jev_turbine.judgments.Judgments, which the sibling
-project uses the same way: reading tracks the id in `read`, in read order, each
-id counted once even if the rule path reads it twice (`corrects_premise` is read
-at rule 1 and, if the pair reaches rule 4, again).
+"""Turns Jev's 18 noul values for one pair into an outcome. The rules below match
+the README's "Rules" section (same order, same reasons, same thresholds), with one
+addition the README's listing does not need but run.py's output does: which ids
+the rules actually read. That mirrors jev_turbine.judgments.Judgments, which the
+sibling project uses the same way: reading tracks the id in `read`, in read order,
+each id counted once even if the rule path reads it twice (`corrects_premise` is
+read at rule 1 and, if the pair reaches rule 5, again).
 
-One change from the design, made in the dev round (20 dev pairs, before any
-holdout run): the reply-side nouls (REPLY below) count as yes from REPLY_YES =
-0.65 instead of 0.8. On the dev set Jev's reply answers for replies the reader
-called answered mostly sat between 0.6 and 0.76. Every other noul keeps 0.8.
+One change made in the dev round (20 dev pairs, before any holdout run): the
+reply-side nouls (REPLY below) count as yes from REPLY_YES = 0.65 instead of 0.8.
+On the dev set Jev's reply answers for replies the reader called answered mostly
+sat between 0.6 and 0.76. Every other noul keeps 0.8.
 
 The shadow `gives_what_is_asked` is never read here; it is written straight
 through to the output by run.py.
@@ -96,15 +95,19 @@ def outcome(values: dict[str, float]) -> tuple[str, list[str], list[str]]:
     given = [t for t in asked if band(a[REPLY[t]], REPLY_YES) == "yes"]
     if given:
         return ANSWERED, reasons + ["gives " + ", ".join(given)], a.read
+
+    # 4. Nothing confidently given. If a reply-side read on one of the asked
+    #    types was itself uncertain, that uncertainty decides the pair.
     unsure = [t for t in asked if band(a[REPLY[t]], REPLY_YES) == "uncertain"]
     if unsure:
         return UNCLEAR, reasons + ["reply uncertain on " + ", ".join(unsure)], a.read
 
-    # 4. Nothing asked was given. Now an uncertain correction matters.
+    # 5. Nothing asked was given, and nothing there was uncertain either. Now an
+    #    uncertain correction matters.
     if band(a["corrects_premise"]) == "uncertain":
         return UNCLEAR, reasons + ["corrects_premise uncertain"], a.read
 
-    # 5. The escape outcomes, deferred before pointed elsewhere.
+    # 6. The escape outcomes, deferred before pointed elsewhere.
     if band(a["defers"]) == "yes":
         return DEFERRED, reasons + ["defers yes"], a.read
     if band(a["points_elsewhere"]) == "yes":
@@ -114,4 +117,5 @@ def outcome(values: dict[str, float]) -> tuple[str, list[str], list[str]]:
     if band(a["points_elsewhere"]) == "uncertain":
         return UNCLEAR, reasons + ["points_elsewhere uncertain"], a.read
 
+    # 7. Nothing asked was given, nothing deferred, nothing pointed elsewhere.
     return NOT_ANSWERED, reasons + ["nothing asked was given"], a.read

@@ -1,4 +1,4 @@
-"""Every return path of rules.outcome(), against docs/questions-design.md section 4,
+"""Every return path of rules.outcome(), against the README's "Rules" section,
 with synthetic noul values (never real Jev output). The shadow `gives_what_is_asked`
 is deliberately left out of every fixture: its absence is itself proof the rules
 never touch it (a KeyError would fail the test if they did).
@@ -49,7 +49,7 @@ def V(**overrides) -> dict[str, float]:
     return values
 
 
-# --- band() thresholds, inclusive per the design (YES=0.8, NO=0.2) -----------------
+# --- band() thresholds, inclusive (YES=0.8, NO=0.2) --------------------------------
 
 
 def test_band_thresholds_are_inclusive():
@@ -128,7 +128,7 @@ def test_uncertain_sibling_ask_reply_branch_not_read_when_one_ask_is_confident()
 
     assert result == ANSWERED
     assert reasons == ["gives time"]
-    # every asks_* is still read (the design reads all seven unconditionally)...
+    # every asks_* is still read (the rules read all seven unconditionally)...
     assert "asks_assessment" in read
     # ...but its reply-side sibling is not, since "assessment" was never in `asked`.
     assert "states_position" not in read

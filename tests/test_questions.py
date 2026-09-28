@@ -1,8 +1,7 @@
-"""questions/pair.yaml must equal docs/questions-design.md section 2's YAML block
-character for character (the file was extracted straight from that block, not
-retyped). This test parses the committed file and checks its shape; it does not
-re-check byte equality against the doc (a doc edit is not this file's job to catch),
-only that what ships is valid and matches the design's 18 ids."""
+"""questions/pair.yaml holds the 18 questions Jev is asked about every pair (see
+the README's "The questions" section). This test parses the committed file and
+checks its shape: exactly those 18 ids, each a noul with string true/false
+criteria, and the shadow question naming both texts."""
 
 from pathlib import Path
 
@@ -39,7 +38,7 @@ def _load() -> dict:
     return yaml.safe_load(QUESTIONS_PATH.read_text(encoding="utf-8"))
 
 
-def test_pair_yaml_has_exactly_the_18_ids_from_the_design():
+def test_pair_yaml_has_exactly_the_18_ids():
     questions = _load()
 
     assert len(questions) == 18
@@ -63,13 +62,3 @@ def test_shadow_question_is_present_and_about_both_texts():
     shadow = questions[SHADOW_ID]
     assert "reply" in shadow["instructions"]
     assert "question" in shadow["instructions"]
-
-
-def test_file_matches_the_design_doc_s_yaml_block_character_for_character():
-    design = (REPO_ROOT / "docs" / "questions-design.md").read_text(encoding="utf-8")
-    lines = design.splitlines()
-    start = lines.index("```yaml") + 1
-    end = lines.index("```", start)
-    expected = "\n".join(lines[start:end]) + "\n"
-
-    assert QUESTIONS_PATH.read_text(encoding="utf-8") == expected

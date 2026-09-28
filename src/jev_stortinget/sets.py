@@ -1,8 +1,8 @@
 """Draws the dev and holdout sets from the cached pairs (see fetch.py) and writes
 them to data/sets/dev.json and data/sets/holdout.json.
 
-The draw is fixed by the plan: every cached pair with a non-empty reply, sorted by
-id, then random.Random(SEED) draws DEV_SIZE + HOLDOUT_SIZE of them.
+The draw is fixed: every cached pair with a non-empty reply, sorted by id, then
+random.Random(SEED) draws DEV_SIZE + HOLDOUT_SIZE of them.
 Random.sample() returns its picks in selection order and guarantees every
 sub-slice of the result is itself a valid random sample, so the first DEV_SIZE
 draws are dev and the next HOLDOUT_SIZE are holdout, with no overlap. Both files

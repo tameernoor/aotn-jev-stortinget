@@ -1,16 +1,16 @@
 """Rank ministries by share of unanswered written questions, for `--set all`.
 
-Per the plan's "Headline metric": the unanswered share counts deferred,
-pointed_elsewhere and not_answered as a share of the pairs with a decided outcome
-(answered, premise_corrected, deferred, pointed_elsewhere or not_answered).
-`unclear` and `no_reply` are never decided outcomes; unclear is reported separately
-beside the share and never folded into either side, and no_reply (an empty reply,
-never sent to Jev) is excluded from both the share and the unclear count, the same
-way an undecided pair is silently left out rather than counted as either.
+The unanswered share counts deferred, pointed_elsewhere and not_answered as a
+share of the pairs with a decided outcome (answered, premise_corrected, deferred,
+pointed_elsewhere or not_answered). `unclear` and `no_reply` are never decided
+outcomes; unclear is reported separately beside the share and never folded into
+either side, and no_reply (an empty reply, never sent to Jev) is excluded from
+both the share and the unclear count, the same way an undecided pair is silently
+left out rather than counted as either.
 
-A ministry is attributed by `answered_by` (the minister who actually answered), not
-`sporsmal_til_minister_tittel`, per docs/questions-design.md: a share of pairs are
-transferred to another minister as "rette vedkommende" before being answered.
+A ministry is attributed by `answered_by` (the minister who actually answered),
+not `sporsmal_til_minister_tittel`: a share of pairs are transferred to another
+minister as "rette vedkommende" before being answered.
 """
 
 from __future__ import annotations

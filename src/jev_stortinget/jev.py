@@ -2,9 +2,8 @@
 
 The SDK reads TYPESAFE_API_KEY and TYPESAFE_BASE_URL from the environment and
 retries rate limits and server errors itself. The model is pinned explicitly on
-every call (MODEL below), per docs/questions-design.md's "pin the model": the
-thresholds in rules.py are tuned against jev-1.13.0, so a run must never drift to
-whatever "latest" happens to mean later.
+every call (MODEL below): the thresholds in rules.py are tuned against
+jev-1.13.0, so a run must never drift to whatever "latest" happens to mean later.
 """
 
 import time
@@ -38,7 +37,8 @@ class AskFn(Protocol):
 def _judgment(answer) -> dict[str, Any]:
     if answer.type == "noul":
         return {"type": "noul", "value": answer.noul}
-    # Any other type is a choice.
+    # Unused by this project's questions (all 18 are nouls); kept so the client
+    # handles any question type.
     return {
         "type": "choice",
         "value": answer.choice,

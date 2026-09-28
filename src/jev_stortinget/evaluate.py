@@ -12,14 +12,14 @@ the results and the labels file are talking about different pairs (an incomplete
 or wrong-set run), which is worth failing loudly on rather than quietly scoring
 fewer pairs than the labels file promises.
 
-Reports, per the plan: agreement of `outcome` with `label`, overall and per label; a
-confusion matrix with `unclear` as a column, since it is an outcome value that can
-occur; agreement when `second_choice` also counts; and the shadow noul
+Reports: agreement of `outcome` with `label`, overall and per label; a confusion
+matrix with `unclear` as a column, since it is an outcome value that can occur;
+agreement when `second_choice` also counts; and the shadow noul
 (`gives_what_is_asked`) scored as answered-or-not (>= 0.8 means answered, <= 0.2
 means not, otherwise unclear) against the label collapsed the same way (answered or
 premise_corrected vs the rest), next to the same binary view of `outcome` itself, so
 a README can compare "decomposition vs labels" against "shadow vs labels" on the
-same pairs (see docs/questions-design.md section 3).
+same pairs (see the README's "What this shows" section).
 
 Both binary views treat "unclear" as its own outcome, never as a stand-in for
 "not answered": `outcome` is unclear (the rules could not decide) or the pair was

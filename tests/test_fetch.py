@@ -116,7 +116,6 @@ def test_build_record_from_a_pair_with_no_begrunnelse():
     assert record.mp_party == "FrP"
     assert record.asked_date == "2025-09-30"
     assert record.answered_date == "2025-10-09"
-    assert record.reasoning == ""
     assert record.question.startswith("Jeg viser til svar")
     assert "<" not in record.reply
 
@@ -126,8 +125,6 @@ def test_build_record_from_a_pair_with_begrunnelse():
     record = build_record(pair)
 
     assert record.id == 108798
-    assert record.reasoning != ""
-    assert "<" not in record.reasoning
     assert record.reply != ""
     assert "<" not in record.reply
 

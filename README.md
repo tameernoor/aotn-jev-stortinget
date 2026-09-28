@@ -1,5 +1,13 @@
 # jev-stortinget
 
+**Part of aotn**, a series of small educational example projects that go with the article "The classifier you don't have to train", about TypeSafe's Jev. Each project gives Jev a different kind of text, asks it narrow typed questions, and lets plain code make every decision. Each one then measures itself against an answer key it did not tune on, and says where it falls short.
+
+The code is here to learn from, not to run in production. Each project shows one pattern in a form small enough to read in one sitting. The rules are illustrative, and none of it is tax, engineering or political advice.
+
+- [aotn-jev-invoices](https://github.com/tameernoor/aotn-jev-invoices): receipts and supplier invoices, VAT codes and approval
+- [aotn-jev-turbine-triage](https://github.com/tameernoor/aotn-jev-turbine-triage): a year of real wind turbine alarms, triaged and checked against the operator's own labels
+- [aotn-jev-stortinget](https://github.com/tameernoor/aotn-jev-stortinget): did the minister answer the question? A full session of the Norwegian parliament
+
 A small example in the aotn series. It reads every written question a member of the
 Storting put to a government minister in the 2024-2025 session, and the minister's
 reply, and asks Jev 18 literal yes/no questions about the two texts. Plain code
@@ -7,8 +15,10 @@ combines the answers into one of six outcomes: answered, premise_corrected,
 deferred, pointed_elsewhere, not_answered or unclear. The result ranks ministries by
 how often their replies leave a question unanswered, with the reply text behind
 every judgment. The judgment is checked against 60 held-out pairs labelled by an
-independent reader who never saw Jev's questions or its answers, and who labelled
-from the definitions alone before any Jev call on that set.
+independent reader, a separate AI model session that saw only the label
+definitions and the two texts, never Jev's questions, its answers or this
+project's code, and that labelled from the definitions alone before any Jev call
+on that set.
 
 ## What it shows
 
@@ -31,7 +41,7 @@ by the rules. Plain code, not Jev, turns those 18 answers into an outcome, never
 guess when the read that would decide it comes back hesitant.
 
 Once every pair has an outcome, it is grouped by the minister who actually answered,
-since a tenth of the sample is transferred to a different minister than the one the
+since 280 of 3,234 pairs, about 9 %, are transferred to a different minister than the one the
 question was addressed to before it gets a reply, and each ministry's share of
 decided pairs that are deferred, pointed elsewhere or not answered is reported, with
 unclear counted separately, never folded into either side. Two lessons carried over
@@ -42,7 +52,9 @@ goes to unclear rather than a guess.
 ## Data and licence
 
 Source: [data.stortinget.no](https://data.stortinget.no/), the Storting's own open
-data service. It is open and free to use, with attribution to Stortinget.
+data service. The data is free for anyone to use, provided Stortinget is credited
+as the source; the terms are at
+[data.stortinget.no/om-datatjenesten/bruksvilkar](https://data.stortinget.no/om-datatjenesten/bruksvilkar/).
 
 Two endpoints, both open JSON with no login. `eksport/skriftligesporsmal?sesjonid=2024-2025&format=json`
 lists a session's written questions; `eksport/enkeltsporsmal?NSporsmalId=<id>&format=json`
@@ -54,8 +66,8 @@ requests in flight, paces them, and on a 429 or 5xx response backs off for 15, 3
 
 The full session's question and reply texts are not committed here (`data/raw/` is
 git-ignored). The drawn dev and holdout sets, with their question and reply text
-already extracted, are committed (`data/sets/`), so the evaluation reproduces
-without a fetch.
+already extracted, are committed (`data/sets/`), but `run` still reads its records
+from `data/raw/`, so a fetch is needed first, even to re-run dev or holdout.
 
 ## How to fetch and run
 
@@ -133,9 +145,10 @@ per pair.
 
 ## Why these questions
 
-TypeSafe's own documentation, at docs.typesafe.ai, explains why a single `choice`
-over "what does the question ask for" was not the right shape here, even though it
-looks at first like a natural fit for a seven-option question.
+TypeSafe's own documentation, at docs.typesafe.ai, describes the general
+difference between a `choice` and a set of `noul`s, which is the reasoning this
+design applied to rule out a single seven-option `choice` over "what does the
+question ask for", even though it looks at first like a natural fit.
 
 > A Choice over options and one Noul per option answer different questions: the
 > Choice is relative, settling which option, while each Noul is absolute and can be
@@ -167,9 +180,14 @@ against a question that, a third of the time, is really two or three questions a
 once. The sibling turbine-triage project already measured this trade on a different
 kind of text: its one broad question scored higher on raw agreement than its five
 literal ones, and was confidently wrong three times as often. The 60-pair holdout
-below repeats that comparison on Norwegian ministerial replies, and the shadow does
-worse here, not better: 18 of 60 against the decomposition's 36 of 60 (see
-Measured).
+below repeats that comparison on Norwegian ministerial replies, though the shadow
+and the decomposition's reply side were not scored on the same threshold; the
+shadow kept the untuned 0.8 yes cut, the reply side used the 0.65 cut chosen on
+dev. At the untuned 0.8 the shadow matched the reader on 18 of 60 (40 unclear, 2
+confidently wrong); at the same 0.65 yes cut it would match on 31 of 60. The
+17-question outcome matched on 36 of 60 (18 unclear, 6 confidently wrong). The
+decomposition decides more pairs and gets more of them right, while the single
+question hedges more and makes fewer confident mistakes (see Measured).
 
 Norwegian carries the two texts Jev reads, `question` and `reply`; English carries
 every instruction and criterion.
@@ -181,8 +199,8 @@ every instruction and criterion.
 
 The criteria quote the Norwegian bokmål and nynorsk phrases a reader would look for
 on each side of the yes/no boundary, which is TypeSafe's own remedy for a subtle
-boundary, but the questions and reply text were never translated, and this design
-was not tested against a non-Norwegian workload before it was used for real.
+boundary, but the questions and reply text were never compared against English
+translations of the same texts before this was used for real.
 
 ## Rules
 
@@ -229,12 +247,13 @@ The dev and holdout ids were drawn once: every cached pair with a non-empty repl
 sorted by id, then `random.Random(20250928)` drew 80 of them. The first 20 draws
 are dev, the next 60 are holdout, so the two sets never overlap.
 
-An independent reader labelled every holdout pair from the label definitions alone,
-never from Jev's questions or Jev's answers. Those holdout labels were committed at
-`e7d6915`, before this project's code could make a single call to Jev; the dev
-labels followed, committed at `70c7113`. On 34 of the 60 holdout pairs the reader
-was torn between two labels and recorded that second choice alongside the label
-actually given.
+An independent reader, a separate AI model session that saw only the label
+definitions and the two texts, labelled every holdout pair from the label
+definitions alone, never from Jev's questions, Jev's answers or this project's
+code. Those holdout labels were committed at `e7d6915`, before this project's code
+could make a single call to Jev; the dev labels followed, committed at `70c7113`.
+On 34 of the 60 holdout pairs the reader was torn between two labels and recorded
+that second choice alongside the label actually given.
 
 The only rule change made after seeing Jev's answers is the reply-side threshold
 described above, and it was made once, on the dev round only, before the holdout
@@ -309,8 +328,9 @@ holdout rounds, so this run made 3,154 new calls, 13,133,047 input tokens, $0.55
 Of the 1,113 unclear pairs, 851 are "reply uncertain": a reply-side noul for one of
 the asked types landed between 0.2 and 0.65. By what was asked (a pair can count
 under more than one type): yes_or_no 350, facts 259, action 168, assessment 148,
-why 59, amount 58, time 27. Ministers rarely write "ja" or "nei" outright, which is
-most of why yes_or_no leads. The rest of the unclear pile is an uncertain escape
+why 59, amount 58, time 27. That is likely because ministers rarely write "ja" or
+"nei" outright, which would account for most of why yes_or_no leads. The rest of
+the unclear pile is an uncertain escape
 read: points_elsewhere uncertain 91, corrects_premise uncertain 87, defers
 uncertain 84.
 
@@ -351,13 +371,18 @@ share built from 13 or 23 pairs moves a lot on one or two reclassified replies.
 ## What this shows
 
 Decomposing the single "did the reply answer" judgment into seven typed asks and
-seven typed reply-nouls, combined with an OR in code, did twice as well against an
-independent reader as the single gut-check shadow question sent alongside it: 36 of
-60 against 18 of 60, on the exact same replies. That gap is wider than the sibling
-turbine-triage project saw between its five literal questions and its three broad
-ones, and the reason is the same one the design work found before any pair was
-sent to Jev: a third of these written questions ask more than one thing in a single
-sentence, which is exactly the shape a single broad question answers worst.
+seven typed reply-nouls, combined with an OR in code, decided more pairs and got
+more of them right against an independent reader than the single gut-check shadow
+question sent alongside it, though the two were not scored on the same threshold.
+The shadow, at the untuned 0.8 yes cut, matched 18 of 60; the decomposition's
+binary outcome matched 36 of 60. At the same 0.65 cut used for the reply side, the
+shadow would match 31 of 60, still fewer than the decomposition, and with more of
+its answers landing unclear rather than confidently wrong (see "Why these
+questions"). That gap is consistent with what the sibling turbine-triage project
+saw between its five literal questions and its three broad ones, and the reason is
+the same one the design work found before any pair was sent to Jev: a third of
+these written questions ask more than one thing in a single sentence, which is
+exactly the shape a single broad question answers worst.
 
 The cost of that gap is size. Exact agreement with the reader is 57 %, not a number
 to build a public ranking on by itself, and a third of the full session comes back
@@ -381,8 +406,8 @@ The two texts are Norwegian, in both bokmål and nynorsk, sent to a model whose 
 documentation says English is its strongest language and other languages are
 "handled but not equally well". The criteria quote the Norwegian phrases a reader
 would look for on each side of the yes/no boundary, but that is a partial remedy,
-not a fix, and this design was never tested against a non-Norwegian workload to
-compare.
+not a fix, and the questions and reply text were never compared against English
+translations of the same texts.
 
 The OR rule that decides `answered` treats a compound question as answered once
 any one of its parts is given, which matches the label definitions ("the reply
@@ -394,13 +419,6 @@ these outcomes even though the rules and the label definitions agree.
 
 The 0.65 reply-side threshold was tuned against 20 dev pairs, a small sample to set
 a number that then ran unchanged over 3,234.
-
-## Previous projects in the series
-
-- [jev-invoices](https://github.com/tameernoor/aotn-jev-invoices), the first in the
-  series, on expense and vendor invoices.
-- [jev-turbine-triage](https://github.com/tameernoor/aotn-jev-turbine-triage), the
-  wind turbine event triage project this one carries its two design lessons from.
 
 ## results/
 

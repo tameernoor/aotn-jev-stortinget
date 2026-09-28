@@ -81,7 +81,6 @@ class Record:
     asked_date: str | None
     answered_date: str | None
     question: str
-    reasoning: str
     reply: str
 
 
@@ -291,7 +290,6 @@ def build_record(payload: dict) -> Record:
         asked_date=parse_stortinget_date(payload.get("datert_dato")),
         answered_date=parse_stortinget_date(payload.get("besvart_dato")),
         question=html_to_text(payload.get("sporsmal")),
-        reasoning=html_to_text(payload.get("begrunnelse")),
         reply=html_to_text(payload.get("svar")),
     )
 
