@@ -71,7 +71,13 @@ Jev is reliable on what a paragraph says. It is not reliable on whether a whole 
 
 ## Cost
 
-Step 2 ran 31,567 paragraph questions over 3,111 replies, for $0.29 in 96 seconds. Step 3 ran 3,337 requests for $0.385 in 98 seconds.
+Each request carries all of one reply's questions, and Jev answers them in parallel. Up to 20 requests run at once.
+
+| | Requests | Questions answered | Cost | Time |
+|---|---|---|---|---|
+| Step 2: does a paragraph give it? | 3,111 | 31,567 | $0.29 | 96 s |
+| Step 3: what does it say instead? | 3,337 | 45,570 | $0.385 | 98 s |
+| Total | 6,448 | 77,137 | $0.675 | 194 s |
 
 ## How to run
 
