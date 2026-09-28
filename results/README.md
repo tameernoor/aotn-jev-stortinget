@@ -2,24 +2,38 @@
 
 ## tree/
 
-The dodge tree's own output (see the root README). Written directly by
-`python -m jev_stortinget tree`, both for a fresh run and for `--from
-out/tree-all.json`, which rebuilds all five files below without spending
-anything on Jev.
+The dodge tree's own output (see the root README). The first five files are
+written directly by `python -m jev_stortinget tree`, both for a fresh run and
+for `--from out/tree-all.json`, which rebuilds them without spending anything
+on Jev. `blind-check.json` is the exception: it comes from a separate,
+independent check, never from this project's code (see below).
 
 - `tree-summary.json`: verdict counts (answered, and how many went on to the
   why-not stage) and the reply-says tag counts, plus the cost and wall time of
   both stages.
-- `by-minister.json`: per ministry, how many tree-eligible pairs it has and how
+- `by-minister.json`: per ministry, `n` (how many tree-eligible pairs it has),
+  `no_hit` (how many of those had no paragraph give what was asked, the
+  denominator the tags below are actually counted within, not `n`), and how
   many carry each reply-says tag (no data, later, someone else's job, can't
   comment, refers back); not mutually exclusive, so a ministry's tags don't
-  have to add up to its pair count.
+  have to add up to `no_hit` either.
 - `no-data.json`, `promised-later.json`: every pair that said, on any
   paragraph, that the data doesn't exist or that the matter is for later, with
-  the ministry, the question, the deciding paragraph's quote, and whether a
-  collect promise or a date came with it.
+  the ministry, the question, the deciding paragraph's index, and a short
+  quote from it (the sentence that carries the reason, or else its first 300
+  characters), never the whole paragraph, and whether a collect promise or a
+  date came with it.
 - `tree-2024-2025.json`: the per-pair values and verdict for all 3,111 pairs,
   ids and paragraph indices only, never the reply text itself.
+- `blind-check.json`: not written by this project's code at all. A blind
+  check by an independent reader, a separate AI model session that saw only
+  the question, the reply and the label definitions, never Jev's own
+  questions or answers: 15 pairs sampled per category (`jev`), the reader's
+  own label (`reader`), any other label they considered (`reader_also`), and
+  why (`reader_reason`). `jev` uses the same names as `verdict()` in
+  `tree.py` (`not_answered`, not the older "not answered, no reason"), so the
+  two label columns are directly comparable. See the root README's "How far
+  to trust it" for what it found.
 
 ## The rest of results/
 

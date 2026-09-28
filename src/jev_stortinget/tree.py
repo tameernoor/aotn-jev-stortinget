@@ -1,13 +1,13 @@
-"""Part 2, the dodge tree: route every pair back to Jev, paragraph by paragraph,
-instead of asking one judgment about the whole reply.
+"""The dodge tree: route every pair back to Jev, paragraph by paragraph, instead
+of asking one judgment about the whole reply.
 
     uv run python -m jev_stortinget tree [--from out/tree-all.json]
 
 Three stages, each a separate, narrower question than the last:
 
-1. Stage 1 (already run, `out/all/results.jsonl`, part 1's own `asks_*` nouls)
-   decides what the question asks for. Only pairs where at least one `asks_*`
-   read >= 0.8 enter the tree at all.
+1. Classify (already run, `out/all/results.jsonl`, the `asks_*` nouls) decides
+   what the question asks for. Only pairs where at least one `asks_*` read
+   >= 0.8 enter the tree at all.
 2. Route (`route_stage`): the reply is split into paragraphs (`paragraphs()`,
    capped at MAX_PARAGRAPHS, the rest merged into the last one) and, in one
    request per pair, every paragraph is asked whether it gives each asked type,
@@ -18,10 +18,10 @@ Three stages, each a separate, narrower question than the last:
    `date` for a paragraph where `later` fired and `collect` for one where
    `nodata` fired, plus a pair-level `swap` question if nothing fired at all.
 
-`verdict()` turns one pair's values into the five-way outcome the project brief
-specifies: answered, a why-not reason, swapped, unsure or not_answered, in that
-priority order, with the deciding paragraph's index and the word count of every
-paragraph before it, kept for `later` and `nodata` in particular (`date_given`,
+`verdict()` turns one pair's values into a five-way outcome: answered, a
+why-not reason, swapped, unsure or not_answered, in that priority order, with
+the deciding paragraph's index and the word count of every paragraph before
+it, kept for `later` and `nodata` in particular (`date_given`,
 `collect_promised`).
 
 Aggregate reporting (by-minister, no-data, promised-later) uses a different,
@@ -31,10 +31,13 @@ first, so it never differs there, but a reply can say both "later" and
 "someone else's job", and both counts should see it). `reply_says_tags()` is
 that check; it never consults `verdict()`.
 
-Concurrency, retries and timeout match `.superpowers/tree/route.py` and
-`whynot.py`, the throwaway scripts this module was built from: at most
-MAX_IN_FLIGHT requests in flight, each request retried up to MAX_ATTEMPTS times
-two seconds apart, `ts.AsyncTypeSafeClient(timeout=TIMEOUT_SECONDS)`.
+Concurrency, retries and timeout: at most MAX_IN_FLIGHT requests in flight,
+each request retried up to MAX_ATTEMPTS times two seconds apart,
+`ts.AsyncTypeSafeClient(timeout=TIMEOUT_SECONDS)`. A request that still fails
+after every retry never reads as a confident "no": `route_stage` and
+`whynot_stage` each print the ids they lost at the end of the stage, and a
+failed follow-up request sets `follow_error` on its row rather than leaving
+`follow` looking like an empty, all-no answer.
 
 Cost bookkeeping: the route stage's token count is on every row (`tokens`), so
 its cost, question count and pair count are recomputed from whatever file is
@@ -56,6 +59,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
@@ -95,7 +99,7 @@ WHYNOT_STAGE_SECONDS = 98
 WHYNOT_STAGE_COST_USD = 0.385
 
 
-# --- question templates, transcribed from .superpowers/tree/route.py and whynot.py -
+# --- question templates ---------------------------------------------------------
 
 def _q(instructions: str, true: str, false: str) -> dict:
     return {"type": "noul", "instructions": instructions, "criteria": {"true": true, "false": false}}
@@ -151,6 +155,10 @@ ASKED_TEMPLATES: dict[str, tuple[str, str, str]] = {
     ),
 }
 
+# Asked (and paid for, its tokens are in the route stage's own cost) because
+# amount/facts warrant checking every paragraph for it, but its value is never
+# read below: the why-not stage's own "nodata" (WHY_TEMPLATES) is the one that
+# actually decides the nodata reason and tag.
 NODATA_STAGE2_TEMPLATE = (
     "Does `{p}` say that the figures or information asked for are not available, not registered, not collected, "
     "or cannot be produced?",
@@ -291,8 +299,9 @@ def build_follow_questions(why_values: dict[str, float], n_paragraphs: int) -> d
 
 
 def load_stage1_asked(path: Path = DEFAULT_STAGE1_RESULTS) -> dict[int, list[str]]:
-    """id -> the asked types (asks_* >= 0.8) from part 1's results.jsonl. A pair
-    with no asked type recognised at all never enters the tree."""
+    """id -> the asked types (asks_* >= 0.8) from the classify stage's own
+    results.jsonl. A pair with no asked type recognised at all never enters
+    the tree."""
     asked: dict[int, list[str]] = {}
     with path.open(encoding="utf-8") as f:
         for line in f:
@@ -344,11 +353,17 @@ async def _route_one(record: Record, asked: list[str], ask: AskFn, semaphore: as
 
 async def route_stage(records: Sequence[Record], asked_by_id: dict[int, list[str]], ask: AskFn) -> list[dict]:
     """One request per pair in `asked_by_id` (pairs with no recognised asked type
-    never enter the tree), at most MAX_IN_FLIGHT in flight."""
+    never enter the tree), at most MAX_IN_FLIGHT in flight. Prints the ids of any
+    pair whose request failed after every retry (see `_ask_with_retries`); the
+    caller still gets those rows back, each with `error: True` and nothing else,
+    so it can decide whether to drop them."""
     semaphore = asyncio.Semaphore(MAX_IN_FLIGHT)
     pool = [r for r in records if r.id in asked_by_id]
-    rows = await asyncio.gather(*(_route_one(r, asked_by_id[r.id], ask, semaphore) for r in pool))
-    return list(rows)
+    rows = list(await asyncio.gather(*(_route_one(r, asked_by_id[r.id], ask, semaphore) for r in pool)))
+    failed = [row["id"] for row in rows if row.get("error")]
+    if failed:
+        print(f"route stage: {len(failed)} of {len(rows)} pairs failed after every retry: {failed}")
+    return rows
 
 
 def route_hit(asked: Sequence[str], values: dict[str, float], n_paragraphs: int) -> int | None:
@@ -363,7 +378,14 @@ def route_hit(asked: Sequence[str], values: dict[str, float], n_paragraphs: int)
 
 async def _whynot_one(row: dict, ask: AskFn, semaphore: asyncio.Semaphore) -> None:
     """Mutates `row` in place: adds `why` and `follow` (`follow` may be empty),
-    or `error: True` if the why-not request itself failed after every retry."""
+    or `error: True` if the why-not request itself failed after every retry.
+
+    If the *follow-up* request failed instead (it asks `date`, `collect` or
+    `swap`, whichever of those `why` actually earned), `follow_error: True` is
+    set and `follow` stays `{}`. Callers must treat that `{}` as unknown, not
+    as a confident no on `date`, `collect` or `swap`: `verdict()` and the
+    no-data/promised-later builders both check `follow_error` before reading
+    `follow` for exactly this reason."""
     ps = row["paragraphs"]
     n = len(ps)
     state = _paragraph_state(row["question"], ps)
@@ -385,6 +407,8 @@ async def _whynot_one(row: dict, ask: AskFn, semaphore: asyncio.Semaphore) -> No
         follow_result = await _ask_with_retries(ask, follow_state, follow_questions, semaphore)
         if follow_result is not None:
             follow_values = {k: v["value"] for k, v in follow_result.judgments.items()}
+        else:
+            row["follow_error"] = True
 
     row["why"] = why_values
     row["follow"] = follow_values
@@ -392,9 +416,17 @@ async def _whynot_one(row: dict, ask: AskFn, semaphore: asyncio.Semaphore) -> No
 
 async def whynot_stage(rows: Sequence[dict], ask: AskFn) -> None:
     """Mutates every row in `rows` in place. The caller passes only the rows
-    that need it: those with no route_hit() at all (see route_stage)."""
+    that need it: those with no route_hit() at all (see route_stage). Prints
+    the ids of any pair whose why-not request failed outright, and separately
+    the ids of any pair whose follow-up request failed (see `_whynot_one`)."""
     semaphore = asyncio.Semaphore(MAX_IN_FLIGHT)
     await asyncio.gather(*(_whynot_one(row, ask, semaphore) for row in rows))
+    failed = [row["id"] for row in rows if row.get("error")]
+    if failed:
+        print(f"why-not stage: {len(failed)} of {len(rows)} pairs failed after every retry: {failed}")
+    follow_failed = [row["id"] for row in rows if row.get("follow_error")]
+    if follow_failed:
+        print(f"why-not stage: {len(follow_failed)} pairs' follow-up request failed after every retry: {follow_failed}")
 
 
 # --- verdict -----------------------------------------------------------------------
@@ -417,6 +449,7 @@ def verdict(
     why: dict[str, float] | None,
     follow: dict[str, float] | None,
     n_paragraphs: int,
+    follow_failed: bool = False,
 ) -> dict[str, Any]:
     """The five-way verdict, in this exact priority order:
 
@@ -434,6 +467,11 @@ def verdict(
     only for the reason that actually won, `date_given` (verdict == "later")
     or `collect_promised` (verdict == "nodata"); the other of the two is always
     None, and both are None for every other verdict.
+
+    `follow_failed` (from a row's own `follow_error`, see `_whynot_one`) means
+    the follow-up request that would have carried `date`/`collect` never came
+    back: `date_given`/`collect_promised` are then None (unknown), never False,
+    since an empty `follow` from a failed request must not read as "no".
     """
     why = why or {}
     follow = follow or {}
@@ -451,12 +489,14 @@ def verdict(
     fired_reasons = [r for r in REASON_ORDER if _fired(why, r, n_paragraphs)]
     if fired_reasons:
         chosen = fired_reasons[0]
+        date_given = None if follow_failed or chosen != "later" else _fired(follow, "date", n_paragraphs)
+        collect_promised = None if follow_failed or chosen != "nodata" else _fired(follow, "collect", n_paragraphs)
         return {
             "verdict": chosen,
             "reasons": fired_reasons,
             "paragraph_index": _fired_index(why, chosen, n_paragraphs),
-            "date_given": _fired(follow, "date", n_paragraphs) if chosen == "later" else None,
-            "collect_promised": _fired(follow, "collect", n_paragraphs) if chosen == "nodata" else None,
+            "date_given": date_given,
+            "collect_promised": collect_promised,
         }
 
     if follow.get("swap", 0.0) >= YES:
@@ -494,7 +534,7 @@ def build_pair_record(row: dict) -> dict:
     indices and values, never the reply text itself."""
     ps = row["paragraphs"]
     n = len(ps)
-    v = verdict(row["asked"], row["values"], row.get("why"), row.get("follow"), n)
+    v = verdict(row["asked"], row["values"], row.get("why"), row.get("follow"), n, bool(row.get("follow_error")))
     word_count_before = None
     if v["paragraph_index"] is not None:
         word_count_before = sum(len(p.split()) for p in ps[: v["paragraph_index"]])
@@ -545,13 +585,19 @@ def build_summary(rows: Sequence[dict], pair_records: Sequence[dict]) -> dict:
 
 
 def build_by_minister(rows: Sequence[dict]) -> dict:
-    """Per ministry: how many tree-eligible pairs it has, and how many of them
-    have each reply-says tag fired anywhere (not mutually exclusive, so the tag
-    counts do not have to add up to `n`)."""
+    """Per ministry: how many tree-eligible pairs it has (`n`), how many of
+    those had no paragraph give what was asked (`no_hit`), and how many carry
+    each reply-says tag fired anywhere. The tags are only ever looked for
+    among `no_hit`'s pairs (see reply_says_tags()), not all of `n`, so `n` is
+    the wrong denominator for them; `no_hit` is the right one, and the tag
+    counts do not have to add up to it either, since a pair can carry more
+    than one tag."""
     ministries: dict[str, dict] = {}
     for row in rows:
-        entry = ministries.setdefault(row["ministry"], {"n": 0, **{tag: 0 for tag in REPLY_SAYS}})
+        entry = ministries.setdefault(row["ministry"], {"n": 0, "no_hit": 0, **{tag: 0 for tag in REPLY_SAYS}})
         entry["n"] += 1
+        if "why" in row:
+            entry["no_hit"] += 1
         for tag in reply_says_tags(row):
             entry[tag] += 1
     return {"ministries": ministries}
@@ -559,15 +605,57 @@ def build_by_minister(rows: Sequence[dict]) -> dict:
 
 def format_by_minister_table(by_minister: dict, min_n: int = 50) -> str:
     rows = {m: d for m, d in by_minister["ministries"].items() if d["n"] >= min_n}
-    header = f"{'ministry':<45} {'n':>5} " + " ".join(f"{tag:>10}" for tag in REPLY_SAYS)
+    header = f"{'ministry':<45} {'n':>5} {'no_hit':>7} " + " ".join(f"{tag:>10}" for tag in REPLY_SAYS)
     lines = [header, "-" * len(header)]
     for ministry in sorted(rows):
         d = rows[ministry]
-        lines.append(f"{ministry:<45} {d['n']:>5} " + " ".join(f"{d[tag]:>10}" for tag in REPLY_SAYS))
+        lines.append(
+            f"{ministry:<45} {d['n']:>5} {d['no_hit']:>7} " + " ".join(f"{d[tag]:>10}" for tag in REPLY_SAYS)
+        )
     return "\n".join(lines)
 
 
-def _tagged_list(rows: Sequence[dict], reason: str, follow_prefix: str, flag_name: str) -> list[dict]:
+QUOTE_MAX_CHARS = 300
+
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+
+# The same example phrases already quoted in WHY_TEMPLATES's own criteria,
+# reused here to find the sentence that actually carries the reason instead of
+# quoting the whole paragraph in no-data.json/promised-later.json.
+NODATA_SIGNAL_PHRASES = (
+    "har ikke tall for",
+    "registreres ikke",
+    "finnes ikke statistikk over",
+    "kan ikke hentes ut",
+    "har ikke oversikt over",
+    "dei registrerer ikkje",
+)
+LATER_SIGNAL_PHRASES = (
+    "vil bli vurdert",
+    "vi kommer tilbake til",
+    "saken er til behandling",
+    "avventer utvalgets rapport",
+    "vil vurdere i forbindelse med budsjettet",
+)
+
+
+def _trim_quote(paragraph: str, signal_phrases: Sequence[str]) -> str:
+    """The first sentence containing one of `signal_phrases` (a case-insensitive
+    substring match), else the first QUOTE_MAX_CHARS characters with a trailing
+    ellipsis. A paragraph can run to several hundred words; the list files only
+    need enough of it to show the reason, not the whole reply."""
+    for sentence in _SENTENCE_SPLIT_RE.split(paragraph.strip()):
+        lowered = sentence.lower()
+        if any(phrase in lowered for phrase in signal_phrases):
+            return sentence
+    if len(paragraph) <= QUOTE_MAX_CHARS:
+        return paragraph
+    return paragraph[:QUOTE_MAX_CHARS].rstrip() + "…"
+
+
+def _tagged_list(
+    rows: Sequence[dict], reason: str, follow_prefix: str, flag_name: str, signal_phrases: Sequence[str]
+) -> list[dict]:
     out = []
     for row in rows:
         n = len(row["paragraphs"])
@@ -576,25 +664,28 @@ def _tagged_list(rows: Sequence[dict], reason: str, follow_prefix: str, flag_nam
         if idx is None:
             continue
         follow = row.get("follow") or {}
+        # A failed follow-up (see _whynot_one) leaves `follow` empty; that must
+        # read as unknown here too, never as a confident no.
+        flag_value = None if row.get("follow_error") else _fired(follow, follow_prefix, n)
         out.append(
             {
                 "id": row["id"],
                 "ministry": row["ministry"],
                 "question": row["question"],
                 "paragraph_index": idx,
-                "quote": row["paragraphs"][idx],
-                flag_name: _fired(follow, follow_prefix, n),
+                "quote": _trim_quote(row["paragraphs"][idx], signal_phrases),
+                flag_name: flag_value,
             }
         )
     return out
 
 
 def build_no_data(rows: Sequence[dict]) -> list[dict]:
-    return _tagged_list(rows, "nodata", "collect", "collect_promised")
+    return _tagged_list(rows, "nodata", "collect", "collect_promised", NODATA_SIGNAL_PHRASES)
 
 
 def build_promised_later(rows: Sequence[dict]) -> list[dict]:
-    return _tagged_list(rows, "later", "date", "date_given")
+    return _tagged_list(rows, "later", "date", "date_given", LATER_SIGNAL_PHRASES)
 
 
 # --- loading / running --------------------------------------------------------------

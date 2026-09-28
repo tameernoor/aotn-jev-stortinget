@@ -20,11 +20,11 @@ writes data/sets/dev.json and data/sets/holdout.json.
 evaluation and ranking outputs). Needs TYPESAFE_API_KEY in the environment, and
 only once a pair actually has to be asked.
 
-`tree` builds the dodge tree (see tree.py): routes every part-1 pair with a
+`tree` builds the dodge tree (see tree.py): routes every pair with a
 recognised asked type back to Jev, paragraph by paragraph, and writes
 results/tree/. `--from FILE` skips Jev entirely and only rebuilds those outputs
 from a previous run's full output (out/tree-all.json); without it, a fresh run
-needs TYPESAFE_API_KEY and out/all/results.jsonl (part 1's own run).
+needs TYPESAFE_API_KEY and out/all/results.jsonl (the classify stage's own run).
 """
 
 from __future__ import annotations

@@ -38,14 +38,14 @@
  },
  {
   "id": 105027,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "nocomment",
   "reader_also": [],
   "reader_reason": "Declines to detail routines: 'uklokt av meg å gå i detalj om hvilke sikkerhetsmessige retningslinjer'."
  },
  {
   "id": 105210,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "elsewhere",
   "reader_also": [],
   "reader_reason": "Gives no when/how; says labelling rules are 'i hovedsak Helse- og omsorgsministerens ansvarsområde' and bound by the EU regulation."
@@ -139,7 +139,7 @@
  },
  {
   "id": 100172,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "elsewhere",
   "reader_also": [],
   "reader_reason": "Explains the access law without a stance on acceptability and points marketing to 'barne- og familieministerens ansvarsområde'."
@@ -205,7 +205,7 @@
  },
  {
   "id": 104954,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "answered",
   "reader_also": [
    "elsewhere"
@@ -223,7 +223,7 @@
  },
  {
   "id": 108736,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "not_answered",
   "reader_also": [],
   "reader_reason": "Describes existing Arbeidstilsynet powers ('tvangsmulkt', 'overtredelsesgebyr') without any new action."
@@ -295,7 +295,7 @@
  },
  {
   "id": 98350,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "not_answered",
   "reader_also": [],
   "reader_reason": "Explains the real-need rule and only says 'Departementet vurderer fortløpende om det er behov for endringer'."
@@ -311,7 +311,7 @@
  },
  {
   "id": 105035,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "answered",
   "reader_also": [],
   "reader_reason": "Gives cost estimates from NAV in 'Tabell 1 Merutgifter for folketrygden ved økte minsteytelser'."
@@ -348,7 +348,7 @@
  },
  {
   "id": 101840,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "answered",
   "reader_also": [],
   "reader_reason": "Confirms the rules apply 'uavhengig av om utvalget er delegert myndighet' and says 'regelverket er tilstrekkelig klart'."
@@ -371,14 +371,14 @@
  },
  {
   "id": 104806,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "answered",
   "reader_also": [],
   "reader_reason": "States the permanent centre 'vil etableres på Reitan ... og vil således ikke påvirke utbyggingen av lufthavnen'."
  },
  {
   "id": 101690,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "elsewhere",
   "reader_also": [
    "later"
@@ -412,7 +412,7 @@
  },
  {
   "id": 98194,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "not_answered",
   "reader_also": [],
   "reader_reason": "Ignores the prostitution remark and says 'det har opprørt meg at et knapt flertall i fylkestinget ... legge ned flere skoler'."
@@ -464,7 +464,7 @@
  },
  {
   "id": 100460,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "answered",
   "reader_also": [
    "elsewhere"
@@ -608,7 +608,7 @@
  },
  {
   "id": 98376,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "answered",
   "reader_also": [
    "elsewhere"
@@ -700,7 +700,7 @@
  },
  {
   "id": 106386,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "answered",
   "reader_also": [],
   "reader_reason": "Gives the argument for current rules: the quota ties to 'det ikke er avgift på alkoholholdig drikk på Svalbard'."
@@ -822,7 +822,7 @@
  },
  {
   "id": 105213,
-  "jev": "not answered, no reason",
+  "jev": "not_answered",
   "reader": "answered",
   "reader_also": [
    "later"

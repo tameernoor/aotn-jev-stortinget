@@ -45,7 +45,7 @@ Each of these questions is narrow enough that Jev can actually be sure of the an
 
 ## What it found
 
-Three lists, all in `results/tree/`, and all with the reply's own words.
+Three lists, all in `results/tree/`, and all with the reply's own words. All of it only looks inside the 1,885 of 3,111 pairs where no paragraph gave what was asked; a pair Jev already called answered is never checked for these tags, so the counts below (130, 751, 573) are shares of those 1,885, not of the full 3,111.
 
 **"Norway doesn't count this."** 130 replies say straight out that the figures don't exist, aren't registered, or can't be pulled. Only 9 of those also promise to start collecting them.
 
@@ -63,30 +63,30 @@ Three lists, all in `results/tree/`, and all with the reply's own words.
 > Jeg vil nå sette meg nærmere inn i rapporten.
 > (`results/tree/promised-later.json`, id 101713, justis- og beredskapsministeren, no date)
 
-**"Someone else's job."** 573 replies point to another body, a municipality, an agency, a health trust, the EU, as the one actually responsible. This one is more informative broken down by ministry than as a single number, alongside the other four tags. From `results/tree/by-minister.json`, ministries with at least 50 pairs.
+**"Someone else's job."** 573 replies point to another body, a municipality, an agency, a health trust, the EU, as the one actually responsible. This one is more informative broken down by ministry than as a single number, alongside the other four tags. From `results/tree/by-minister.json`, ministries with at least 50 pairs; `n` is every tree-eligible pair for that ministry, `no hit` is how many of those had no paragraph give what was asked, and the five tag columns are shares of `no hit`, not of `n`.
 
-| ministry | n | no data | can't comment | someone else's job | later | refers back |
-| --- | --- | --- | --- | --- | --- | --- |
-| arbeids- og inkluderingsministeren | 122 | 5 | 4 | 11 | 26 | 5 |
-| barne- og familieministeren | 70 | 4 | 1 | 8 | 18 | 7 |
-| digitaliserings- og forvaltningsministeren | 56 | 6 | 0 | 9 | 15 | 5 |
-| energiministeren | 242 | 7 | 3 | 41 | 56 | 4 |
-| finansministeren | 245 | 17 | 7 | 14 | 50 | 17 |
-| fiskeri- og havministeren | 118 | 2 | 9 | 19 | 45 | 5 |
-| forsknings- og høyere utdanningsministeren | 73 | 4 | 0 | 17 | 13 | 2 |
-| forsvarsministeren | 134 | 0 | 1 | 6 | 40 | 8 |
-| helse- og omsorgsministeren | 423 | 15 | 6 | 138 | 119 | 29 |
-| justis- og beredskapsministeren | 331 | 15 | 17 | 53 | 65 | 28 |
-| klima- og miljøministeren | 175 | 3 | 4 | 28 | 50 | 8 |
-| kommunal- og distriktsministeren | 143 | 5 | 15 | 29 | 28 | 7 |
-| kultur- og likestillingsministeren | 100 | 3 | 2 | 14 | 29 | 3 |
-| kunnskapsministeren | 134 | 14 | 4 | 35 | 24 | 7 |
-| landbruks- og matministeren | 78 | 1 | 0 | 7 | 9 | 2 |
-| næringsministeren | 123 | 6 | 7 | 43 | 24 | 6 |
-| samferdselsministeren | 414 | 20 | 0 | 84 | 112 | 30 |
-| utenriksministeren | 96 | 1 | 0 | 11 | 14 | 8 |
+| ministry | n | no hit | no data | can't comment | someone else's job | later | refers back |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| arbeids- og inkluderingsministeren | 122 | 65 | 5 | 4 | 11 | 26 | 5 |
+| barne- og familieministeren | 70 | 36 | 4 | 1 | 8 | 18 | 7 |
+| digitaliserings- og forvaltningsministeren | 56 | 27 | 6 | 0 | 9 | 15 | 5 |
+| energiministeren | 242 | 154 | 7 | 3 | 41 | 56 | 4 |
+| finansministeren | 245 | 144 | 17 | 7 | 14 | 50 | 17 |
+| fiskeri- og havministeren | 118 | 75 | 2 | 9 | 19 | 45 | 5 |
+| forsknings- og høyere utdanningsministeren | 73 | 42 | 4 | 0 | 17 | 13 | 2 |
+| forsvarsministeren | 134 | 84 | 0 | 1 | 6 | 40 | 8 |
+| helse- og omsorgsministeren | 423 | 295 | 15 | 6 | 138 | 119 | 29 |
+| justis- og beredskapsministeren | 331 | 205 | 15 | 17 | 53 | 65 | 28 |
+| klima- og miljøministeren | 175 | 104 | 3 | 4 | 28 | 50 | 8 |
+| kommunal- og distriktsministeren | 143 | 83 | 5 | 15 | 29 | 28 | 7 |
+| kultur- og likestillingsministeren | 100 | 56 | 3 | 2 | 14 | 29 | 3 |
+| kunnskapsministeren | 134 | 72 | 14 | 4 | 35 | 24 | 7 |
+| landbruks- og matministeren | 78 | 35 | 1 | 0 | 7 | 9 | 2 |
+| næringsministeren | 123 | 88 | 6 | 7 | 43 | 24 | 6 |
+| samferdselsministeren | 414 | 236 | 20 | 0 | 84 | 112 | 30 |
+| utenriksministeren | 96 | 61 | 1 | 0 | 11 | 14 | 8 |
 
-A pair can carry more than one tag (a reply can say both "later" and "someone else's job" in different paragraphs), so a row's tags don't have to add up to its `n`, and these are ministry sizes, not a scorecard: a bigger ministry naturally answers more written questions and so naturally racks up bigger tag counts everywhere.
+A pair can carry more than one tag (a reply can say both "later" and "someone else's job" in different paragraphs), so a row's tags don't have to add up to its `no hit` either, and these are ministry sizes, not a scorecard: a bigger ministry naturally answers more written questions and so naturally racks up bigger counts everywhere.
 
 ## How far to trust it
 
@@ -99,8 +99,12 @@ An independent reader, a separate AI model session that saw only the question, t
 | someone else's job | 12 / 15 |
 | no data | 12 / 15 |
 | answered | 14 / 15 |
+| possible swap | 1 / 15 |
+| no answer and no reason | 3 / 15 |
 
-That is solid agreement on what a paragraph says. It is not the same claim as "the reply as a whole failed to answer": across the pairs where Jev found no paragraph that gives what was asked, the reader still judged 39 of 90 of those replies as answered overall, reading things the paragraph-by-paragraph pass didn't ask about, tone, an implied answer spread across two paragraphs, background that amounts to a yes. So this project does not say which questions went unanswered. It says what a reply's paragraphs actually contain, which turns out to be a more checkable claim than "answered or not" and, on this evidence, a more reliable one too.
+The last two rows failed the check. At 1 in 15 and 3 in 15, "possible swap" and "no answer and no reason" agree far less often than every other category, so neither is reported anywhere in `results/tree/`: they were checked and set aside, not shipped.
+
+That is solid agreement on the other five, on what a paragraph says. It is not the same claim as "the reply as a whole failed to answer": across the 90 sampled non-answered pairs (the six categories above other than "answered", 15 each), the reader still judged 39 of them as answered overall, reading things the paragraph-by-paragraph pass didn't ask about, tone, an implied answer spread across two paragraphs, background that amounts to a yes. So this project does not say which questions went unanswered. It says what a reply's paragraphs actually contain, which turns out to be a more checkable claim than "answered or not" and, on this evidence, a more reliable one too.
 
 The sample, Jev's verdicts and the reader's labels are in `results/tree/blind-check.json`.
 
@@ -146,4 +150,4 @@ Source: [data.stortinget.no](https://data.stortinget.no/), the Storting's own op
 
 Two endpoints, both open JSON with no login. `eksport/skriftligesporsmal?sesjonid=2024-2025&format=json` lists a session's written questions; `eksport/enkeltsporsmal?NSporsmalId=<id>&format=json` returns one question and its reply. The parameter has to be `NSporsmalId`; the similarly named `sporsmalid` redirects and often fails. The service rate-limits in bursts, usually without a `Retry-After` header, so `fetch.py` keeps at most 2 requests in flight, paces them, and on a 429 or 5xx response backs off for 15, 30, 60 then 120 seconds rather than retrying immediately.
 
-The full session's question and reply texts are not committed here (`data/raw/` is git-ignored), so `fetch` is needed before a fresh run. `results/tree/` is committed, minus the reply text itself (`results/tree/tree-2024-2025.json` keeps ids, paragraph indices and values, never the paragraphs), so the numbers above are checkable without fetching anything.
+The full session's question and reply texts are not committed here (`data/raw/` is git-ignored), so `fetch` is needed before a fresh run. `results/tree/` is committed. `tree-2024-2025.json` keeps only ids, paragraph indices and values, never any reply text; `no-data.json` and `promised-later.json` each carry one short quote per pair, the sentence that carries the reason or, failing that, the paragraph's first 300 characters, not the whole reply. So the numbers above are checkable without fetching anything.

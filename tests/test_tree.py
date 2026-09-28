@@ -13,6 +13,7 @@ from fakes import ConcurrencyTrackingAsk, FakeJev
 
 from jev_stortinget.__main__ import main
 from jev_stortinget.fetch import Record
+from jev_stortinget.jev import JevResult
 from jev_stortinget.tree import (
     MAX_IN_FLIGHT,
     MAX_PARAGRAPHS,
@@ -325,15 +326,29 @@ def test_build_by_minister_counts_tags_per_ministry_not_exclusively():
     by_minister = build_by_minister(rows)["ministries"]
 
     assert by_minister["a"]["n"] == 2
+    assert by_minister["a"]["no_hit"] == 2  # both rows reached the why-not stage
     assert by_minister["a"]["nodata"] == 1
     assert by_minister["a"]["later"] == 1
     assert by_minister["a"]["elsewhere"] == 1
-    assert by_minister["b"] == {"n": 1, "nodata": 0, "nocomment": 0, "elsewhere": 0, "later": 0, "earlier": 0}
+    assert by_minister["b"] == {
+        "n": 1,
+        "no_hit": 0,  # answered at route_stage, never reached why-not
+        "nodata": 0,
+        "nocomment": 0,
+        "elsewhere": 0,
+        "later": 0,
+        "earlier": 0,
+    }
 
 
 def test_format_by_minister_table_filters_by_min_n():
-    by_minister = {"ministries": {"big": {"n": 60, **{t: 0 for t in ("nodata", "nocomment", "elsewhere", "later", "earlier")}},
-                                   "small": {"n": 10, **{t: 0 for t in ("nodata", "nocomment", "elsewhere", "later", "earlier")}}}}
+    tags = {t: 0 for t in ("nodata", "nocomment", "elsewhere", "later", "earlier")}
+    by_minister = {
+        "ministries": {
+            "big": {"n": 60, "no_hit": 40, **tags},
+            "small": {"n": 10, "no_hit": 5, **tags},
+        }
+    }
     table = format_by_minister_table(by_minister, min_n=50)
     assert "big" in table
     assert "small" not in table
@@ -412,3 +427,158 @@ def test_tree_function_from_path_never_builds_a_jev_client(tmp_path, monkeypatch
         tree(from_path=from_path, out_dir=tmp_path / "out", results_dir=tmp_path / "results")
     )
     assert summary["n_pairs"] == 1
+
+
+# --- silent retries: a stage that loses a request must say so, never guess "no" ----
+
+
+def _judgment_result(judgments: dict[str, float], tokens: int = 10) -> JevResult:
+    return JevResult(
+        judgments={qid: {"type": "noul", "value": v} for qid, v in judgments.items()},
+        meta={
+            "model": "fake",
+            "request_id": None,
+            "latency_ms": 1.0,
+            "question_count": len(judgments),
+            "input_tokens": tokens,
+            "price_per_mtok_usd": 0.042,
+            "cost_usd": tokens * 0.042 / 1_000_000,
+        },
+    )
+
+
+def test_route_stage_prints_the_ids_it_lost_after_every_retry(monkeypatch, capsys):
+    import jev_stortinget.tree as tree_module
+
+    monkeypatch.setattr(tree_module, "RETRY_SLEEP_SECONDS", 0)
+    records = [Record(1, 1, "m", "m", "MP", "X", None, None, "Q1", "Reply one.")]
+    fake = FakeJev(error=RuntimeError("boom"))
+
+    rows = asyncio.run(route_stage(records, {1: ["yes_or_no"]}, fake.ask))
+
+    assert rows == [{"id": 1, "error": True}]
+    out = capsys.readouterr().out
+    assert "route stage" in out
+    assert "[1]" in out
+
+
+def test_whynot_stage_prints_the_ids_it_lost_after_every_retry(monkeypatch, capsys):
+    import jev_stortinget.tree as tree_module
+
+    monkeypatch.setattr(tree_module, "RETRY_SLEEP_SECONDS", 0)
+    row = _row(9, "Q9", ["p1 text"], ["yes_or_no"], {"yes_or_no_p1": 0.1})
+    fake = FakeJev(error=RuntimeError("boom"))
+
+    asyncio.run(whynot_stage([row], fake.ask))
+
+    assert row.get("error") is True
+    assert "why" not in row
+    out = capsys.readouterr().out
+    assert "why-not stage" in out
+    assert "[9]" in out
+
+
+def test_whynot_stage_flags_a_failed_follow_up_instead_of_reading_it_as_no(monkeypatch, capsys):
+    import jev_stortinget.tree as tree_module
+
+    monkeypatch.setattr(tree_module, "RETRY_SLEEP_SECONDS", 0)
+    # id 107566: the real run's own example of a pair whose swap follow-up failed.
+    row = _row(107566, "Q", ["p1 text"], ["yes_or_no"], {"yes_or_no_p1": 0.1})
+
+    async def ask(state, questions):
+        if "swap" in questions:
+            raise RuntimeError("simulated follow-up failure")
+        return _judgment_result({qid: 0.05 for qid in questions})  # nothing fires in why
+
+    asyncio.run(whynot_stage([row], ask))
+
+    assert row["why"]  # the why call itself succeeded
+    assert row["follow"] == {}
+    assert row["follow_error"] is True
+    out = capsys.readouterr().out
+    assert "follow-up" in out
+    assert "107566" in out
+
+
+def test_whynot_stage_flags_a_failed_date_follow_up_and_verdict_reads_it_as_unknown(monkeypatch):
+    import jev_stortinget.tree as tree_module
+
+    monkeypatch.setattr(tree_module, "RETRY_SLEEP_SECONDS", 0)
+    row = _row(50, "Q", ["p1 text"], ["yes_or_no"], {"yes_or_no_p1": 0.1})
+
+    async def ask(state, questions):
+        if any(qid.startswith("date_p") for qid in questions):
+            raise RuntimeError("simulated follow-up failure")
+        return _judgment_result({qid: (0.9 if qid == "later_p1" else 0.05) for qid in questions})
+
+    asyncio.run(whynot_stage([row], ask))
+
+    assert row["follow"] == {}
+    assert row["follow_error"] is True
+
+    v = verdict(row["asked"], row["values"], row["why"], row["follow"], 1, follow_failed=True)
+    assert v["verdict"] == "later"
+    assert v["date_given"] is None  # unknown, never a confident "no"
+
+
+def test_build_promised_later_date_given_is_none_when_the_follow_up_failed():
+    row = _tree_row(why={"later_p1": 0.9}, follow={})
+    row["follow_error"] = True
+    entries = build_promised_later([row])
+    assert entries[0]["date_given"] is None
+
+
+def test_build_no_data_collect_promised_is_none_when_the_follow_up_failed():
+    row = _tree_row(why={"nodata_p1": 0.9}, follow={})
+    row["follow_error"] = True
+    entries = build_no_data([row])
+    assert entries[0]["collect_promised"] is None
+
+
+def test_build_pair_record_date_given_is_none_when_the_follow_up_failed():
+    row = _tree_row(why={"later_p1": 0.9}, follow={})
+    row["follow_error"] = True
+    record = build_pair_record(row)
+    assert record["verdict"] == "later"
+    assert record["date_given"] is None
+
+
+# --- quotes: the first sentence carrying the signal, else 300 chars and an ellipsis -
+
+
+def test_build_no_data_quote_trims_to_the_signal_sentence():
+    paragraph = (
+        "Departementet har gjennomført en rekke tiltak på dette området de siste årene. "
+        "Vi har ikke tall for utviklingen i denne perioden, men jobber med saken. "
+        "Dette er noe vi følger nøye videre fremover i tiden som kommer."
+    )
+    row = _tree_row(paragraphs=[paragraph], why={"nodata_p1": 0.9}, follow={})
+    entries = build_no_data([row])
+    assert entries[0]["quote"] == "Vi har ikke tall for utviklingen i denne perioden, men jobber med saken."
+
+
+def test_build_promised_later_quote_trims_to_the_signal_sentence():
+    paragraph = (
+        "Dette er en sak som har fått mye oppmerksomhet i det siste. "
+        "Vi kommer tilbake til Stortinget med en nærmere vurdering. "
+        "Inntil videre fortsetter arbeidet som planlagt."
+    )
+    row = _tree_row(paragraphs=[paragraph], why={"later_p1": 0.9}, follow={})
+    entries = build_promised_later([row])
+    assert entries[0]["quote"] == "Vi kommer tilbake til Stortinget med en nærmere vurdering."
+
+
+def test_build_no_data_quote_falls_back_to_300_chars_with_an_ellipsis():
+    paragraph = ("Ord for ord uten noe kjent signal her. " * 20).strip()
+    row = _tree_row(paragraphs=[paragraph], why={"nodata_p1": 0.9}, follow={})
+    entries = build_no_data([row])
+    quote = entries[0]["quote"]
+    assert quote.endswith("…")
+    assert len(quote) <= 301
+    assert paragraph.startswith(quote[:-1])
+
+
+def test_build_no_data_quote_short_paragraph_is_unchanged():
+    row = _tree_row(paragraphs=["Kort svar uten data."], why={"nodata_p1": 0.9}, follow={})
+    entries = build_no_data([row])
+    assert entries[0]["quote"] == "Kort svar uten data."
