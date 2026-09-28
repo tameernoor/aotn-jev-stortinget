@@ -1,0 +1,250 @@
+{
+  "ministries": {
+    "næringsministeren": {
+      "n": 131,
+      "counts": {
+        "unclear": 53,
+        "answered": 55,
+        "deferred": 7,
+        "pointed_elsewhere": 13,
+        "premise_corrected": 3
+      },
+      "unanswered_share": 0.2564102564102564,
+      "unclear": 53
+    },
+    "barne- og familieministeren": {
+      "n": 73,
+      "counts": {
+        "unclear": 20,
+        "answered": 48,
+        "pointed_elsewhere": 2,
+        "premise_corrected": 2,
+        "deferred": 1
+      },
+      "unanswered_share": 0.05660377358490566,
+      "unclear": 20
+    },
+    "samferdselsministeren": {
+      "n": 428,
+      "counts": {
+        "answered": 245,
+        "unclear": 136,
+        "deferred": 19,
+        "pointed_elsewhere": 12,
+        "premise_corrected": 13,
+        "not_answered": 3
+      },
+      "unanswered_share": 0.11643835616438356,
+      "unclear": 136
+    },
+    "energiministeren": {
+      "n": 265,
+      "counts": {
+        "answered": 135,
+        "unclear": 92,
+        "premise_corrected": 11,
+        "pointed_elsewhere": 6,
+        "deferred": 17,
+        "not_answered": 4
+      },
+      "unanswered_share": 0.15606936416184972,
+      "unclear": 92
+    },
+    "forsknings- og høyere utdanningsministeren": {
+      "n": 74,
+      "counts": {
+        "unclear": 24,
+        "answered": 40,
+        "pointed_elsewhere": 5,
+        "premise_corrected": 2,
+        "deferred": 3
+      },
+      "unanswered_share": 0.16,
+      "unclear": 24
+    },
+    "klima- og miljøministeren": {
+      "n": 180,
+      "counts": {
+        "unclear": 59,
+        "answered": 92,
+        "deferred": 14,
+        "premise_corrected": 6,
+        "pointed_elsewhere": 6,
+        "not_answered": 3
+      },
+      "unanswered_share": 0.19008264462809918,
+      "unclear": 59
+    },
+    "utenriksministeren": {
+      "n": 97,
+      "counts": {
+        "unclear": 38,
+        "answered": 51,
+        "not_answered": 1,
+        "premise_corrected": 3,
+        "deferred": 4
+      },
+      "unanswered_share": 0.0847457627118644,
+      "unclear": 38
+    },
+    "landbruks- og matministeren": {
+      "n": 82,
+      "counts": {
+        "answered": 56,
+        "unclear": 18,
+        "deferred": 2,
+        "premise_corrected": 5,
+        "pointed_elsewhere": 1
+      },
+      "unanswered_share": 0.046875,
+      "unclear": 18
+    },
+    "helse- og omsorgsministeren": {
+      "n": 440,
+      "counts": {
+        "answered": 198,
+        "unclear": 186,
+        "pointed_elsewhere": 14,
+        "deferred": 15,
+        "premise_corrected": 19,
+        "not_answered": 8
+      },
+      "unanswered_share": 0.14566929133858267,
+      "unclear": 186
+    },
+    "kultur- og likestillingsministeren": {
+      "n": 102,
+      "counts": {
+        "unclear": 19,
+        "answered": 62,
+        "premise_corrected": 7,
+        "deferred": 11,
+        "pointed_elsewhere": 3
+      },
+      "unanswered_share": 0.1686746987951807,
+      "unclear": 19
+    },
+    "finansministeren": {
+      "n": 259,
+      "counts": {
+        "answered": 126,
+        "unclear": 90,
+        "not_answered": 11,
+        "premise_corrected": 14,
+        "deferred": 16,
+        "pointed_elsewhere": 2
+      },
+      "unanswered_share": 0.17159763313609466,
+      "unclear": 90
+    },
+    "justis- og beredskapsministeren": {
+      "n": 333,
+      "counts": {
+        "unclear": 124,
+        "pointed_elsewhere": 20,
+        "answered": 159,
+        "not_answered": 2,
+        "premise_corrected": 9,
+        "deferred": 19
+      },
+      "unanswered_share": 0.19617224880382775,
+      "unclear": 124
+    },
+    "fiskeri- og havministeren": {
+      "n": 120,
+      "counts": {
+        "answered": 63,
+        "unclear": 42,
+        "deferred": 8,
+        "pointed_elsewhere": 1,
+        "not_answered": 1,
+        "premise_corrected": 5
+      },
+      "unanswered_share": 0.1282051282051282,
+      "unclear": 42
+    },
+    "arbeids- og inkluderingsministeren": {
+      "n": 127,
+      "counts": {
+        "unclear": 42,
+        "answered": 69,
+        "premise_corrected": 5,
+        "deferred": 6,
+        "pointed_elsewhere": 2,
+        "not_answered": 3
+      },
+      "unanswered_share": 0.12941176470588237,
+      "unclear": 42
+    },
+    "utviklingsministeren": {
+      "n": 23,
+      "counts": {
+        "answered": 13,
+        "unclear": 4,
+        "deferred": 4,
+        "pointed_elsewhere": 2
+      },
+      "unanswered_share": 0.3157894736842105,
+      "unclear": 4
+    },
+    "kunnskapsministeren": {
+      "n": 139,
+      "counts": {
+        "answered": 80,
+        "unclear": 42,
+        "pointed_elsewhere": 6,
+        "deferred": 6,
+        "premise_corrected": 5
+      },
+      "unanswered_share": 0.12371134020618557,
+      "unclear": 42
+    },
+    "kommunal- og distriktsministeren": {
+      "n": 151,
+      "counts": {
+        "answered": 86,
+        "unclear": 44,
+        "deferred": 8,
+        "not_answered": 2,
+        "premise_corrected": 6,
+        "pointed_elsewhere": 5
+      },
+      "unanswered_share": 0.14018691588785046,
+      "unclear": 44
+    },
+    "forsvarsministeren": {
+      "n": 141,
+      "counts": {
+        "unclear": 61,
+        "answered": 61,
+        "not_answered": 3,
+        "deferred": 12,
+        "pointed_elsewhere": 1,
+        "premise_corrected": 3
+      },
+      "unanswered_share": 0.2,
+      "unclear": 61
+    },
+    "digitaliserings- og forvaltningsministeren": {
+      "n": 56,
+      "counts": {
+        "answered": 37,
+        "deferred": 4,
+        "unclear": 14,
+        "premise_corrected": 1
+      },
+      "unanswered_share": 0.09523809523809523,
+      "unclear": 14
+    },
+    "statsministeren": {
+      "n": 13,
+      "counts": {
+        "deferred": 1,
+        "unclear": 5,
+        "answered": 7
+      },
+      "unanswered_share": 0.125,
+      "unclear": 5
+    }
+  }
+}
