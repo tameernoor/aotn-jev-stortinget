@@ -278,3 +278,21 @@ def test_setting_every_unread_id_to_uncertain_does_not_change_the_outcome(values
     result2, reasons2, read2 = outcome(mutated)
 
     assert (result2, reasons2, read2) == (result, reasons, read)
+
+
+def test_reply_side_counts_as_yes_from_0_65_but_other_nouls_keep_0_8():
+    from jev_stortinget.rules import REPLY_YES, outcome
+
+    assert REPLY_YES == 0.65
+    base = {qid: 0.0 for qid in (
+        "corrects_premise", "defers", "points_elsewhere",
+        "asks_amount", "asks_time", "asks_yes_or_no", "asks_action", "asks_why",
+        "asks_assessment", "asks_facts",
+        "states_amount", "states_time", "says_yes_or_no", "names_action",
+        "gives_reason", "states_position", "gives_facts",
+    )}
+    base["asks_time"] = 0.95
+    assert outcome({**base, "states_time": 0.65})[0] == "answered"
+    assert outcome({**base, "states_time": 0.64})[0] == "unclear"
+    # an escape noul at 0.7 is still uncertain, not yes
+    assert outcome({**base, "states_time": 0.1, "defers": 0.7})[0] == "unclear"

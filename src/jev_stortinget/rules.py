@@ -7,6 +7,11 @@ project uses the same way: reading tracks the id in `read`, in read order, each
 id counted once even if the rule path reads it twice (`corrects_premise` is read
 at rule 1 and, if the pair reaches rule 4, again).
 
+One change from the design, made in the dev round (20 dev pairs, before any
+holdout run): the reply-side nouls (REPLY below) count as yes from REPLY_YES =
+0.65 instead of 0.8. On the dev set Jev's reply answers for replies the reader
+called answered mostly sat between 0.6 and 0.76. Every other noul keeps 0.8.
+
 The shadow `gives_what_is_asked` is never read here; it is written straight
 through to the output by run.py.
 """
@@ -15,6 +20,7 @@ from __future__ import annotations
 
 YES = 0.8
 NO = 0.2
+REPLY_YES = 0.65  # reply-side nouls only; chosen on the dev set
 
 TYPES = ["amount", "time", "yes_or_no", "action", "why", "assessment", "facts"]
 REPLY = {
@@ -44,8 +50,8 @@ NO_REPLY = "no_reply"
 OUTCOMES = (ANSWERED, PREMISE_CORRECTED, DEFERRED, POINTED_ELSEWHERE, NOT_ANSWERED, UNCLEAR)
 
 
-def band(p: float) -> str:
-    return "yes" if p >= YES else "no" if p <= NO else "uncertain"
+def band(p: float, yes: float = YES) -> str:
+    return "yes" if p >= yes else "no" if p <= NO else "uncertain"
 
 
 class _Values:
@@ -87,10 +93,10 @@ def outcome(values: dict[str, float]) -> tuple[str, list[str], list[str]]:
 
     # 3. Answered if the reply gives any one of the things asked. This is an OR
     #    over the asked types: yes if any is yes, no only if all are no.
-    given = [t for t in asked if band(a[REPLY[t]]) == "yes"]
+    given = [t for t in asked if band(a[REPLY[t]], REPLY_YES) == "yes"]
     if given:
         return ANSWERED, reasons + ["gives " + ", ".join(given)], a.read
-    unsure = [t for t in asked if band(a[REPLY[t]]) == "uncertain"]
+    unsure = [t for t in asked if band(a[REPLY[t]], REPLY_YES) == "uncertain"]
     if unsure:
         return UNCLEAR, reasons + ["reply uncertain on " + ", ".join(unsure)], a.read
 
