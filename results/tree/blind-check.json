@@ -1,0 +1,841 @@
+[
+ {
+  "id": 108791,
+  "jev": "elsewhere",
+  "reader": "elsewhere",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "No ministerial measure; the reply says 'Det er Sykehuset Telemark HF sammen med Helse Sør-Øst RHF som må vurdere' and no decision is made yet."
+ },
+ {
+  "id": 104313,
+  "jev": "nodata",
+  "reader": "not_answered",
+  "reader_also": [],
+  "reader_reason": "Relays HSØ facts and general goals ('Jeg er opptatt av ... kontinuerlig læring') without naming any government action."
+ },
+ {
+  "id": 107670,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [],
+  "reader_reason": "Corrects the premise and then says 'Så lenge saka er i prosess i departementet, kan eg ikkje kommentere innhaldet'."
+ },
+ {
+  "id": 104330,
+  "jev": "swapped",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives the reason: the report went on open consultation ('lagt ut på regjeringen.no', 'god anledning til å gi innspill')."
+ },
+ {
+  "id": 105084,
+  "jev": "elsewhere",
+  "reader": "elsewhere",
+  "reader_also": [],
+  "reader_reason": "Says allocation is a municipal matter: 'Det er opp til den enkelte kommune å gi retningslinjer'."
+ },
+ {
+  "id": 105027,
+  "jev": "not answered, no reason",
+  "reader": "nocomment",
+  "reader_also": [],
+  "reader_reason": "Declines to detail routines: 'uklokt av meg å gå i detalj om hvilke sikkerhetsmessige retningslinjer'."
+ },
+ {
+  "id": 105210,
+  "jev": "not answered, no reason",
+  "reader": "elsewhere",
+  "reader_also": [],
+  "reader_reason": "Gives no when/how; says labelling rules are 'i hovedsak Helse- og omsorgsministerens ansvarsområde' and bound by the EU regulation."
+ },
+ {
+  "id": 101887,
+  "jev": "nodata",
+  "reader": "nodata",
+  "reader_also": [],
+  "reader_reason": "Says the data cannot be compiled: 'Kostnad per samband er derfor ikke tilgjengelig'."
+ },
+ {
+  "id": 108762,
+  "jev": "swapped",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives the minister's position defending the claim: 'Arbeiderpartiet lite behov for å stemme for et forslag'."
+ },
+ {
+  "id": 104600,
+  "jev": "elsewhere",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Answers yes with limits: 'kommunestyret kan fastsette regler om hvordan folkevalgte skal opptre'."
+ },
+ {
+  "id": 101747,
+  "jev": "later",
+  "reader": "answered",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "Answers yes: 'Regjeringen har fortsatt ambisjoner', with details to follow in 'den kommende forprosjektfasen'."
+ },
+ {
+  "id": 105191,
+  "jev": "nodata",
+  "reader": "answered",
+  "reader_also": [
+   "nodata"
+  ],
+  "reader_reason": "Provides FHI data showing 'negativ utvikling i årene fra 1. tertial 2019 til 1. tertial 2025', though FHI 'ikke har statistikk' for all operations."
+ },
+ {
+  "id": 104035,
+  "jev": "swapped",
+  "reader": "later",
+  "reader_also": [],
+  "reader_reason": "No concrete measure; 'Departementet er i dialog med Statens vegvesen om korleis vi kan handtere' the expropriation deadline."
+ },
+ {
+  "id": 108737,
+  "jev": "later",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Clarifies the rules: 'Besøk hos helsesykepleier medfører derfor ikke at eleven mister muligheten til å få karakter'."
+ },
+ {
+  "id": 100578,
+  "jev": "nodata",
+  "reader": "answered",
+  "reader_also": [
+   "nocomment"
+  ],
+  "reader_reason": "Gives the aggregated figures in Tabell 1, but 'Det gis ikke tall på kommunenivå' to avoid identifying individuals."
+ },
+ {
+  "id": 106227,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives the cause: 'På grunn av høy arbeidsbelastning ble dokumentene journalført noe senere'."
+ },
+ {
+  "id": 98195,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Minister declines to judge: 'Det er derfor ikke naturlig at jeg uttaler meg om dette' pending the Statsforvalter complaint."
+ },
+ {
+  "id": 99730,
+  "jev": "later",
+  "reader": "later",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "No prognoses given; price effects 'vil inngå i disse utredningene' that Statnett will carry out."
+ },
+ {
+  "id": 100172,
+  "jev": "not answered, no reason",
+  "reader": "elsewhere",
+  "reader_also": [],
+  "reader_reason": "Explains the access law without a stance on acceptability and points marketing to 'barne- og familieministerens ansvarsområde'."
+ },
+ {
+  "id": 104805,
+  "jev": "later",
+  "reader": "later",
+  "reader_also": [
+   "earlier"
+  ],
+  "reader_reason": "Refers to 'mitt svar på skriftlig spørsmål nr. 2230' and says the ruling 'vil derfor inngå i vurderingene til arbeidsgruppen'."
+ },
+ {
+  "id": 100583,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives amounts: 'om lag 17, 8 mill. kr for perioden 1. juli – 31. desember 2024' and a 55 mill. forecast for 2025."
+ },
+ {
+  "id": 104883,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Refuses a view: 'ikke naturlig at jeg skal ha en oppfatning om TONOs tariffer', pointing to the courts and Patentstyret."
+ },
+ {
+  "id": 106433,
+  "jev": "nodata",
+  "reader": "nodata",
+  "reader_also": [],
+  "reader_reason": "Says the table cannot be produced: 'lar det seg ikke gjøre å fremskaffe disse tallene foreløpig'."
+ },
+ {
+  "id": 104985,
+  "jev": "swapped",
+  "reader": "elsewhere",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "Names no measure; accreditation is 'i prosess hos NOKUT' and funding goes 'gjennom ordinære budsjettprosesser'."
+ },
+ {
+  "id": 106224,
+  "jev": "elsewhere",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "In substance no: the minister 'legger til grunn at beslutningen om ikke å finansiere Epidyolex er tatt etter en faglig vurdering'."
+ },
+ {
+  "id": 104270,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Declines: 'Det er da ikke riktig av meg å gå nærmere inn i saken' as it is with Skatteetaten."
+ },
+ {
+  "id": 104954,
+  "jev": "not answered, no reason",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Relays concrete arrangements: 'alle pasienter som har rett på overnatting ... vil få det', with single rooms and 16 family rooms."
+ },
+ {
+  "id": 104967,
+  "jev": "nocomment",
+  "reader": "elsewhere",
+  "reader_also": [
+   "nocomment"
+  ],
+  "reader_reason": "Says 'Det er UDI og UNE som avgjør enkeltsaker' and the minister has no authority to intervene."
+ },
+ {
+  "id": 108736,
+  "jev": "not answered, no reason",
+  "reader": "not_answered",
+  "reader_also": [],
+  "reader_reason": "Describes existing Arbeidstilsynet powers ('tvangsmulkt', 'overtredelsesgebyr') without any new action."
+ },
+ {
+  "id": 98061,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives estimates: 'årlige forvaltningskostnader ... om lag 25 mill. kroner (19 årsverk)' plus prisråd costs and 'ett årsverk i departementet'."
+ },
+ {
+  "id": 98092,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Declines on the ongoing tender: 'HSØ sin anskaffelse er pågående, og jeg kan på den bakgrunn ikke kommentere ytterligere'."
+ },
+ {
+  "id": 104710,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives firm and amounts: 'Try Råd AS ... kroner 841 800' and 'Gambit H&K AS ... kroner 40 625'."
+ },
+ {
+  "id": 100391,
+  "jev": "elsewhere",
+  "reader": "elsewhere",
+  "reader_also": [],
+  "reader_reason": "Restates the foretaksmøte terms and says 'Helse Nord RHF har ansvar for å sikre en funksjonsfordeling'."
+ },
+ {
+  "id": 106367,
+  "jev": "nodata",
+  "reader": "answered",
+  "reader_also": [
+   "nodata"
+  ],
+  "reader_reason": "Says 'Det føres ikke nasjonal oversikt' and answers how: 'Jeg kommer ikke til å innføre kontrollmekanismer', relying on dialogue."
+ },
+ {
+  "id": 104865,
+  "jev": "swapped",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Implies no deduction: 'kontrakt med rederiene omfatter ikke krav om frakt av personkjøretøy'."
+ },
+ {
+  "id": 98162,
+  "jev": "later",
+  "reader": "answered",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "Names concrete steps: 'bedt Skattedirektoratet vurdere' changes and 'igangsatt en teknisk revisjon av loven'."
+ },
+ {
+  "id": 104914,
+  "jev": "elsewhere",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere",
+   "later"
+  ],
+  "reader_reason": "Rebuts the premise with 'budsjettet til Sør-Vest politidistrikt ... er økt med 79 millioner kroner' and says 'vil vurdere å utvide'."
+ },
+ {
+  "id": 98350,
+  "jev": "not answered, no reason",
+  "reader": "not_answered",
+  "reader_also": [],
+  "reader_reason": "Explains the real-need rule and only says 'Departementet vurderer fortløpende om det er behov for endringer'."
+ },
+ {
+  "id": 105061,
+  "jev": "elsewhere",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Gives the reason: 'jeg anser ikke inngrep i adgangen til kraftmarkedet som et egnet virkemiddel'."
+ },
+ {
+  "id": 105035,
+  "jev": "not answered, no reason",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives cost estimates from NAV in 'Tabell 1 Merutgifter for folketrygden ved økte minsteytelser'."
+ },
+ {
+  "id": 106376,
+  "jev": "elsewhere",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "In substance no: 'Avløpsinfrastruktur er et kommunalt ansvar' and costs are covered 'over avløpsgebyret'."
+ },
+ {
+  "id": 104452,
+  "jev": "later",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives the minister's view: 'hensynet til folks trygghet for egen hverdagsøkonomi bør veie tyngst'."
+ },
+ {
+  "id": 106278,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Lists measures: 'skogbrannhelikopter er i beredskap fra 15. april' and 'statsforvalterne styrket med 34 mill. kroner'."
+ },
+ {
+  "id": 98697,
+  "jev": "answered",
+  "reader": "elsewhere",
+  "reader_also": [],
+  "reader_reason": "No legality assessment; 'Kommunene har stor frihet til å organisere sine tjenester' and 'Byrådet i Oslo har gjort sine prioriteringer'."
+ },
+ {
+  "id": 101840,
+  "jev": "not answered, no reason",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Confirms the rules apply 'uavhengig av om utvalget er delegert myndighet' and says 'regelverket er tilstrekkelig klart'."
+ },
+ {
+  "id": 107563,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "Names a measure: 'Miljødirektoratet fikk derfor ... i oppdrag' as a basis for later regulations."
+ },
+ {
+  "id": 104798,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [],
+  "reader_reason": "Declines on funding: 'kan jeg ikke si noe om drøftinger om budsjettet i departementet'."
+ },
+ {
+  "id": 104806,
+  "jev": "not answered, no reason",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "States the permanent centre 'vil etableres på Reitan ... og vil således ikke påvirke utbyggingen av lufthavnen'."
+ },
+ {
+  "id": 101690,
+  "jev": "not answered, no reason",
+  "reader": "elsewhere",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "Says 'Det er klima- og miljøministeren som har ansvar' and that he is 'i dialog med klima- og miljøministeren'."
+ },
+ {
+  "id": 104446,
+  "jev": "elsewhere",
+  "reader": "elsewhere",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "No verdict; 'flere fagmyndigheter som har forvaltningsansvar' and new rules are 'vurderes for fastsettelse av Klima- og miljødepartementet'."
+ },
+ {
+  "id": 106507,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Lists measures: the action plan, 'økt antallet uanmeldte tilsyn' and 'sammenslåingsordning for fartøy under 11 meter'."
+ },
+ {
+  "id": 101942,
+  "jev": "swapped",
+  "reader": "answered",
+  "reader_also": [
+   "swapped"
+  ],
+  "reader_reason": "Gives only assisted returns: 'UDI har så langt bistått én person med retur til Syria'."
+ },
+ {
+  "id": 98194,
+  "jev": "not answered, no reason",
+  "reader": "not_answered",
+  "reader_also": [],
+  "reader_reason": "Ignores the prostitution remark and says 'det har opprørt meg at et knapt flertall i fylkestinget ... legge ned flere skoler'."
+ },
+ {
+  "id": 104746,
+  "jev": "later",
+  "reader": "later",
+  "reader_also": [],
+  "reader_reason": "Says 'Mitt departement vil i samråd med HK-dir vurdere om det er behov for å gjøre endringer'."
+ },
+ {
+  "id": 104503,
+  "jev": "elsewhere",
+  "reader": "later",
+  "reader_also": [],
+  "reader_reason": "No commitment; whether to fund 'er ... et spørsmål som må besvares gjennom ordinære budsjettprosesser'."
+ },
+ {
+  "id": 105179,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [],
+  "reader_reason": "Gives only the general rules and says 'Jeg har ingen kommentarer til den nevnte tingrettsdommen'."
+ },
+ {
+  "id": 106414,
+  "jev": "nodata",
+  "reader": "answered",
+  "reader_also": [
+   "nodata",
+   "earlier"
+  ],
+  "reader_reason": "Quotes an earlier answer giving 'inntektstapet til anslagsvis 145 mill. kr', while 'har per i dag ikke tall' for the other routes."
+ },
+ {
+  "id": 104589,
+  "jev": "swapped",
+  "reader": "not_answered",
+  "reader_also": [],
+  "reader_reason": "Does not condemn; says only 'Det bør no bringast på det reine kva som har skjedd' and speaks generally about Gaza."
+ },
+ {
+  "id": 104363,
+  "jev": "swapped",
+  "reader": "not_answered",
+  "reader_also": [],
+  "reader_reason": "Talks about 'god og hyppige dialogen' and 'stor forståelse' without saying whether concrete signals came."
+ },
+ {
+  "id": 100460,
+  "jev": "not answered, no reason",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Evaluation 'konkluderte med at etableringen av PNB har bedret politiets nasjonale beredskapsevne', with recommendations 'fulgt opp av Politidirektoratet'."
+ },
+ {
+  "id": 98171,
+  "jev": "swapped",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "In substance yes: 'konsekvent norsk politikk å ikke akseptere en kobling mellom markedsadgang og ressursadgang'."
+ },
+ {
+  "id": 100023,
+  "jev": "nodata",
+  "reader": "answered",
+  "reader_also": [
+   "nodata"
+  ],
+  "reader_reason": "Attaches the Statsbygg table, noting 'Databasen gir ikke tilgang til informasjon om kostnader ... der staten leier'."
+ },
+ {
+  "id": 99881,
+  "jev": "elsewhere",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Says 'det nå gjennomføres en ROS-analyse' before 24 January and 'jeg legger til grunn at alle endringer skjer innenfor gjeldende krav'."
+ },
+ {
+  "id": 100226,
+  "jev": "swapped",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives the figure: '2033 rettsakter ... tekne inn i EØS-avtalen' with the list attached (no comparative assessment)."
+ },
+ {
+  "id": 106324,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Refuses: 'i strid med det Stortinget selv har fastsatt, dersom jeg ... skulle gripe inn i en enkeltsak ved å kommentere'."
+ },
+ {
+  "id": 98276,
+  "jev": "elsewhere",
+  "reader": "elsewhere",
+  "reader_also": [
+   "earlier"
+  ],
+  "reader_reason": "Refers to 'min uttale til NTB' and says 'Det er dei som har ansvar for saka' (the counties)."
+ },
+ {
+  "id": 106315,
+  "jev": "nodata",
+  "reader": "nodata",
+  "reader_also": [],
+  "reader_reason": "Says 'Departementet har imidlertid ingen oversikt over hvor mange barn som mottar slike sekker'."
+ },
+ {
+  "id": 100039,
+  "jev": "later",
+  "reader": "later",
+  "reader_also": [],
+  "reader_reason": "No status given; 'Justis- og beredskapsdepartementet arbeider med en statusrapport ... vil foreligge i løpet av våren'."
+ },
+ {
+  "id": 100476,
+  "jev": "nodata",
+  "reader": "answered",
+  "reader_also": [
+   "nodata"
+  ],
+  "reader_reason": "Gives region numbers ('Region Sør: 16 avvik i 2023 og 66 i 2024') as 'Det foreligger ikke fylkesvise tall'."
+ },
+ {
+  "id": 104940,
+  "jev": "later",
+  "reader": "elsewhere",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "No verdict; RAM 'er politiets egen modell' and its evaluation 'er igangsatt'."
+ },
+ {
+  "id": 105147,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Kommunene are planmyndighet and 'Jeg ønsker ... ikke å kommentere saken nærmere så lenge planen fortsatt er til behandling'."
+ },
+ {
+  "id": 104207,
+  "jev": "later",
+  "reader": "later",
+  "reader_also": [],
+  "reader_reason": "No figures; 'Regjeringen vil ta stilling til lokalisering ... basert på helhetlige vurderinger'."
+ },
+ {
+  "id": 98271,
+  "jev": "nodata",
+  "reader": "nodata",
+  "reader_also": [],
+  "reader_reason": "Says 'Vi har ikkje oppdaterte tal for dei einskilde køyretøygruppene no'."
+ },
+ {
+  "id": 107608,
+  "jev": "elsewhere",
+  "reader": "not_answered",
+  "reader_also": [],
+  "reader_reason": "Explains travel rules and Helse Nord practice without saying whether the minister agrees ('ikke gitt særskilte regler')."
+ },
+ {
+  "id": 104224,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [],
+  "reader_reason": "Declines: 'ønsker jeg ikke å uttale meg om innsigelsessaker ... Dette gjelder også for den konkrete saken i Surnadal'."
+ },
+ {
+  "id": 106480,
+  "jev": "later",
+  "reader": "elsewhere",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "Area 'kan derfor ikke åpnes' and 'NVE må på ordinært vis vurdere alle innkomne søknader'; NVE to propose coordination."
+ },
+ {
+  "id": 98550,
+  "jev": "swapped",
+  "reader": "not_answered",
+  "reader_also": [],
+  "reader_reason": "Gives no amount attributable, only 'Årets utbetaling fra Havbruksfondet på 4,7 mrd. kroner' and the mechanism."
+ },
+ {
+  "id": 98376,
+  "jev": "not answered, no reason",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Relays Helse Nord facts: 'det gis tilbud om arbeidsrettet rehabilitering i regionen'."
+ },
+ {
+  "id": 106264,
+  "jev": "nocomment",
+  "reader": "answered",
+  "reader_also": [
+   "nocomment"
+  ],
+  "reader_reason": "Gives time spent ('10 rettsdager', '27 dager i forberedelsestid') but no cost, citing it 'kan ikke ... kommentere'."
+ },
+ {
+  "id": 100466,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives the number: '150 032 fullførte boliger'."
+ },
+ {
+  "id": 104354,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [],
+  "reader_reason": "Says 'Jeg er ikke kjent med status for de andre innsigelsessakene ... og kan ikke uttale meg konkret'."
+ },
+ {
+  "id": 99758,
+  "jev": "later",
+  "reader": "answered",
+  "reader_also": [
+   "nocomment",
+   "later"
+  ],
+  "reader_reason": "Explains the ruling and says 'Vi tar sikte på å fremme et lovforslag for Stortinget innen påske 2025'."
+ },
+ {
+  "id": 99872,
+  "jev": "elsewhere",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "In substance yes: permits 'ikke vil fornyes eller kan falle bort' and 'Departementet har gitt en instruks til UDI'."
+ },
+ {
+  "id": 101968,
+  "jev": "later",
+  "reader": "answered",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "Gives an assessment ('tydelig i sin fordømmelse ... Rwandas støtte til M23') while an aid freeze is 'noe som vi ... vurderer fortløpende'."
+ },
+ {
+  "id": 101863,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "No date; 'Det er statsforvalteren som fremmer innsigelser' and 'Jeg kan ikke kommentere disse sakene'."
+ },
+ {
+  "id": 105172,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "States the position: 'Eg meiner at vi har eit godt system for etiske vurderingar'."
+ },
+ {
+  "id": 99867,
+  "jev": "nodata",
+  "reader": "nodata",
+  "reader_also": [],
+  "reader_reason": "Says 'Vi har ikke informasjon som gjør det mulig å skille ut utenlandske aksjer'."
+ },
+ {
+  "id": 108780,
+  "jev": "nodata",
+  "reader": "answered",
+  "reader_also": [
+   "nodata"
+  ],
+  "reader_reason": "Gives the view 'Kjønnsdeleling i undervisningen skal ikke forekomme' and says 'Det finnes ikke noen nasjonal oversikt'."
+ },
+ {
+  "id": 106386,
+  "jev": "not answered, no reason",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives the argument for current rules: the quota ties to 'det ikke er avgift på alkoholholdig drikk på Svalbard'."
+ },
+ {
+  "id": 99830,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "No date, but gives action: 'Norske myndigheter har klargjort et forslag' while 'vi venter på at øvrige EØS/EFTA-land tar endelig stilling'."
+ },
+ {
+  "id": 108742,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "Rebuts with facts, 'ikke noen «spesiell soningsavtale»', and says Kriminalomsorgsdirektoratet 'vil ... foreta en gjennomgang av regelverket'."
+ },
+ {
+  "id": 104091,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives figures: '338 personer' (corrected to 644), 'Snittlønnen ... rundt 1,4 mill. kroner' and '466 intensiv- og overvåkingsenger'."
+ },
+ {
+  "id": 104586,
+  "jev": "swapped",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives the view and advice: 'Dersom skolen har mistanke om slikt, bør politiet kontaktes'."
+ },
+ {
+  "id": 99953,
+  "jev": "later",
+  "reader": "later",
+  "reader_also": [
+   "earlier"
+  ],
+  "reader_reason": "Refers to 'svar sendt Stortinget 17. desember' and says how to incorporate 'fortsatt er til vurdering'."
+ },
+ {
+  "id": 104641,
+  "jev": "swapped",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Says 'det ikke er planer om å legge ned kontorsteder' and staff 'sitter på samme kontorsted som før'."
+ },
+ {
+  "id": 105108,
+  "jev": "later",
+  "reader": "nocomment",
+  "reader_also": [
+   "later",
+   "earlier"
+  ],
+  "reader_reason": "Refers to his reply in spørretimen and says 'er det ikke aktuelt å si noe om nå', with a final decision to come."
+ },
+ {
+  "id": 104856,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Confirms: 'oppfølgingen av anmodningen vil gjelde for hele Enovas virke'."
+ },
+ {
+  "id": 104537,
+  "jev": "swapped",
+  "reader": "answered",
+  "reader_also": [],
+  "reader_reason": "Gives the number: 'antall planlagte samvirkeøvelser i 2025 er fire' with 'gjenstår tre'."
+ },
+ {
+  "id": 99771,
+  "jev": "nodata",
+  "reader": "nodata",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "Says the ministry 'har heller ikke tall på sluttbruken' and 'ingen planer om å utarbeide en slik oversikt'."
+ },
+ {
+  "id": 107598,
+  "jev": "elsewhere",
+  "reader": "elsewhere",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "No verdicts; 'det er den enkelte kommune som har ansvaret' and the risk assessment is something 'politiet ... vil gå nøye inn i'."
+ },
+ {
+  "id": 100327,
+  "jev": "nocomment",
+  "reader": "nocomment",
+  "reader_also": [],
+  "reader_reason": "Declines: 'Regjeringen kommenterer ikke intern saksbehandling av denne eller andre saker'."
+ },
+ {
+  "id": 107647,
+  "jev": "answered",
+  "reader": "answered",
+  "reader_also": [
+   "nodata"
+  ],
+  "reader_reason": "Attaches the per-municipality cut ('Sjå fullstendig oversikt ... i vedlegg') but 'Departementet har ikkje oversikt over kor mykje slike kostnadar utgjer'."
+ },
+ {
+  "id": 99959,
+  "jev": "nodata",
+  "reader": "answered",
+  "reader_also": [
+   "elsewhere"
+  ],
+  "reader_reason": "In substance no: 'vil det i praksis være vanskelig å innlemme glutenfritt korn', per Landbruks- og matdepartementet."
+ },
+ {
+  "id": 105213,
+  "jev": "not answered, no reason",
+  "reader": "answered",
+  "reader_also": [
+   "later"
+  ],
+  "reader_reason": "Gives backlog facts ('23 innsigelsessaker ... det laveste antallet på flere år') and says 'vil jeg se på tiltak'."
+ },
+ {
+  "id": 104031,
+  "jev": "swapped",
+  "reader": "nodata",
+  "reader_also": [
+   "earlier"
+  ],
+  "reader_reason": "Gives no number: 'Det er ikke mulig å si sikkert', pointing to NOU 2020: 6 'tabell 5.5' and the four-seat floor."
+ }
+]

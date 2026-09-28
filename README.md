@@ -102,7 +102,7 @@ An independent reader, a separate AI model session that saw only the question, t
 
 That is solid agreement on what a paragraph says. It is not the same claim as "the reply as a whole failed to answer": across the pairs where Jev found no paragraph that gives what was asked, the reader still judged 39 of 90 of those replies as answered overall, reading things the paragraph-by-paragraph pass didn't ask about, tone, an implied answer spread across two paragraphs, background that amounts to a yes. So this project does not say which questions went unanswered. It says what a reply's paragraphs actually contain, which turns out to be a more checkable claim than "answered or not" and, on this evidence, a more reliable one too.
 
-<PRECISION: filled after the blind check>
+The sample, Jev's verdicts and the reader's labels are in `results/tree/blind-check.json`.
 
 ## Cost and speed
 
