@@ -101,7 +101,14 @@ def test_build_follow_questions_only_where_the_parent_fired():
 
 def test_verdict_answered_wins_at_the_first_paragraph_that_hits():
     v = verdict(asked=["yes_or_no"], values={"yes_or_no_p1": 0.1, "yes_or_no_p2": 0.85}, why=None, follow=None, n_paragraphs=2)
-    assert v == {"verdict": "answered", "reasons": [], "paragraph_index": 1, "date_given": None, "collect_promised": None}
+    assert v == {
+        "verdict": "answered",
+        "reasons": [],
+        "paragraph_index": 1,
+        "date_given": None,
+        "collect_promised": None,
+        "swap_check_failed": False,
+    }
 
 
 def test_verdict_reason_priority_order_nodata_before_everything():
@@ -145,7 +152,39 @@ def test_verdict_swapped_when_nothing_in_why_fired_but_swap_did():
     v = verdict(
         asked=["yes_or_no"], values={"yes_or_no_p1": 0.05}, why={"nodata_p1": 0.1}, follow={"swap": 0.9}, n_paragraphs=1
     )
-    assert v == {"verdict": "swapped", "reasons": [], "paragraph_index": None, "date_given": None, "collect_promised": None}
+    assert v == {
+        "verdict": "swapped",
+        "reasons": [],
+        "paragraph_index": None,
+        "date_given": None,
+        "collect_promised": None,
+        "swap_check_failed": False,
+    }
+
+
+def test_verdict_swap_check_failed_when_the_only_follow_up_was_swap_and_it_failed():
+    # nothing in why fired, so the one follow-up asked was swap; it failed.
+    v = verdict(
+        asked=["yes_or_no"],
+        values={"yes_or_no_p1": 0.05},
+        why={"nodata_p1": 0.1},
+        follow={},
+        n_paragraphs=1,
+        follow_failed=True,
+    )
+    assert v["verdict"] == "not_answered"  # never silently reads the failed check as "not swapped"
+    assert v["swap_check_failed"] is True
+
+
+def test_verdict_swap_check_failed_is_false_when_a_reason_already_fired():
+    # a reason fired in why, so the follow-up (if any) was date/collect, never
+    # swap at all; follow_failed here must not be mistaken for a failed swap check.
+    v = verdict(
+        asked=["yes_or_no"], values={"yes_or_no_p1": 0.05}, why={"later_p1": 0.9}, follow={}, n_paragraphs=1,
+        follow_failed=True,
+    )
+    assert v["verdict"] == "later"
+    assert v["swap_check_failed"] is False
 
 
 def test_verdict_unsure_when_an_asked_type_value_is_strictly_between_the_bands():
@@ -543,10 +582,10 @@ def test_build_pair_record_date_given_is_none_when_the_follow_up_failed():
     assert record["date_given"] is None
 
 
-# --- quotes: the first sentence carrying the signal, else 300 chars and an ellipsis -
+# --- quotes: the whole deciding paragraph, never an excerpt -------------------------
 
 
-def test_build_no_data_quote_trims_to_the_signal_sentence():
+def test_build_no_data_quote_is_the_whole_paragraph_even_when_long():
     paragraph = (
         "Departementet har gjennomført en rekke tiltak på dette området de siste årene. "
         "Vi har ikke tall for utviklingen i denne perioden, men jobber med saken. "
@@ -554,10 +593,10 @@ def test_build_no_data_quote_trims_to_the_signal_sentence():
     )
     row = _tree_row(paragraphs=[paragraph], why={"nodata_p1": 0.9}, follow={})
     entries = build_no_data([row])
-    assert entries[0]["quote"] == "Vi har ikke tall for utviklingen i denne perioden, men jobber med saken."
+    assert entries[0]["quote"] == paragraph
 
 
-def test_build_promised_later_quote_trims_to_the_signal_sentence():
+def test_build_promised_later_quote_is_the_whole_paragraph_even_when_long():
     paragraph = (
         "Dette er en sak som har fått mye oppmerksomhet i det siste. "
         "Vi kommer tilbake til Stortinget med en nærmere vurdering. "
@@ -565,17 +604,7 @@ def test_build_promised_later_quote_trims_to_the_signal_sentence():
     )
     row = _tree_row(paragraphs=[paragraph], why={"later_p1": 0.9}, follow={})
     entries = build_promised_later([row])
-    assert entries[0]["quote"] == "Vi kommer tilbake til Stortinget med en nærmere vurdering."
-
-
-def test_build_no_data_quote_falls_back_to_300_chars_with_an_ellipsis():
-    paragraph = ("Ord for ord uten noe kjent signal her. " * 20).strip()
-    row = _tree_row(paragraphs=[paragraph], why={"nodata_p1": 0.9}, follow={})
-    entries = build_no_data([row])
-    quote = entries[0]["quote"]
-    assert quote.endswith("…")
-    assert len(quote) <= 301
-    assert paragraph.startswith(quote[:-1])
+    assert entries[0]["quote"] == paragraph
 
 
 def test_build_no_data_quote_short_paragraph_is_unchanged():

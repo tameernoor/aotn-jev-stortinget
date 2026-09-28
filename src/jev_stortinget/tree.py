@@ -42,9 +42,10 @@ failed follow-up request sets `follow_error` on its row rather than leaving
 Cost bookkeeping: the route stage's token count is on every row (`tokens`), so
 its cost, question count and pair count are recomputed from whatever file is
 loaded. The why-not stage's per-request tokens were only ever kept in an
-in-memory running total in `whynot.py`, never written back onto a row, so they
-cannot be recovered from `out/tree-all.json` after the fact; WHYNOT_STAGE_*
-below are that stage's own real totals, kept as constants for the same reason
+in-memory running total during the real run, never written back onto a row,
+so they cannot be recovered from `out/tree-all.json` after the fact;
+WHYNOT_STAGE_* below are that stage's own real totals, kept as constants for
+the same reason
 jev.py pins PRICE_PER_MTOK_USD: a fact about a specific real run, not something
 every load of the file can derive. Wall time is never stored per row for either
 stage, so both ROUTE_STAGE_SECONDS and WHYNOT_STAGE_SECONDS are constants too.
@@ -59,7 +60,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import re
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
@@ -384,8 +384,9 @@ async def _whynot_one(row: dict, ask: AskFn, semaphore: asyncio.Semaphore) -> No
     `swap`, whichever of those `why` actually earned), `follow_error: True` is
     set and `follow` stays `{}`. Callers must treat that `{}` as unknown, not
     as a confident no on `date`, `collect` or `swap`: `verdict()` and the
-    no-data/promised-later builders both check `follow_error` before reading
-    `follow` for exactly this reason."""
+    no-data/promised-later builders both take `follow_failed`/`follow_error`
+    and read `follow` accordingly, `date`/`collect` as None and `swap` as
+    `swap_check_failed` (see `verdict()`)."""
     ps = row["paragraphs"]
     n = len(ps)
     state = _paragraph_state(row["question"], ps)
@@ -469,9 +470,14 @@ def verdict(
     None, and both are None for every other verdict.
 
     `follow_failed` (from a row's own `follow_error`, see `_whynot_one`) means
-    the follow-up request that would have carried `date`/`collect` never came
-    back: `date_given`/`collect_promised` are then None (unknown), never False,
-    since an empty `follow` from a failed request must not read as "no".
+    the follow-up request failed outright. For a pair that reaches step 2,
+    `date_given`/`collect_promised` are then None (unknown), never False,
+    since an empty `follow` from a failed request must not read as "no". For a
+    pair that reaches step 3, the follow-up asked only `swap` (nothing in
+    `why` fired), so a failure there cannot be hidden behind a None value the
+    same way: step 3 is skipped and `swap_check_failed` is True instead,
+    meaning the `unsure`/`not_answered` verdict below it was reached without
+    ever knowing whether the reply swapped in a different figure.
     """
     why = why or {}
     follow = follow or {}
@@ -484,6 +490,7 @@ def verdict(
             "paragraph_index": hit,
             "date_given": None,
             "collect_promised": None,
+            "swap_check_failed": False,
         }
 
     fired_reasons = [r for r in REASON_ORDER if _fired(why, r, n_paragraphs)]
@@ -497,13 +504,31 @@ def verdict(
             "paragraph_index": _fired_index(why, chosen, n_paragraphs),
             "date_given": date_given,
             "collect_promised": collect_promised,
+            "swap_check_failed": False,
         }
 
-    if follow.get("swap", 0.0) >= YES:
-        return {"verdict": SWAPPED, "reasons": [], "paragraph_index": None, "date_given": None, "collect_promised": None}
+    # Nothing in `why` fired, so the one follow-up asked was `swap` (see
+    # _whynot_one): `follow_failed` here means specifically that it failed.
+    swap_check_failed = follow_failed
+    if not follow_failed and follow.get("swap", 0.0) >= YES:
+        return {
+            "verdict": SWAPPED,
+            "reasons": [],
+            "paragraph_index": None,
+            "date_given": None,
+            "collect_promised": None,
+            "swap_check_failed": False,
+        }
 
     if any(NO < v < YES for k, v in values.items() if k.split("_p", 1)[0] in asked):
-        return {"verdict": UNSURE, "reasons": [], "paragraph_index": None, "date_given": None, "collect_promised": None}
+        return {
+            "verdict": UNSURE,
+            "reasons": [],
+            "paragraph_index": None,
+            "date_given": None,
+            "collect_promised": None,
+            "swap_check_failed": swap_check_failed,
+        }
 
     return {
         "verdict": NOT_ANSWERED,
@@ -511,6 +536,7 @@ def verdict(
         "paragraph_index": None,
         "date_given": None,
         "collect_promised": None,
+        "swap_check_failed": swap_check_failed,
     }
 
 
@@ -551,6 +577,7 @@ def build_pair_record(row: dict) -> dict:
         "word_count_before": word_count_before,
         "date_given": v["date_given"],
         "collect_promised": v["collect_promised"],
+        "swap_check_failed": v["swap_check_failed"],
     }
 
 
@@ -615,47 +642,7 @@ def format_by_minister_table(by_minister: dict, min_n: int = 50) -> str:
     return "\n".join(lines)
 
 
-QUOTE_MAX_CHARS = 300
-
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
-
-# The same example phrases already quoted in WHY_TEMPLATES's own criteria,
-# reused here to find the sentence that actually carries the reason instead of
-# quoting the whole paragraph in no-data.json/promised-later.json.
-NODATA_SIGNAL_PHRASES = (
-    "har ikke tall for",
-    "registreres ikke",
-    "finnes ikke statistikk over",
-    "kan ikke hentes ut",
-    "har ikke oversikt over",
-    "dei registrerer ikkje",
-)
-LATER_SIGNAL_PHRASES = (
-    "vil bli vurdert",
-    "vi kommer tilbake til",
-    "saken er til behandling",
-    "avventer utvalgets rapport",
-    "vil vurdere i forbindelse med budsjettet",
-)
-
-
-def _trim_quote(paragraph: str, signal_phrases: Sequence[str]) -> str:
-    """The first sentence containing one of `signal_phrases` (a case-insensitive
-    substring match), else the first QUOTE_MAX_CHARS characters with a trailing
-    ellipsis. A paragraph can run to several hundred words; the list files only
-    need enough of it to show the reason, not the whole reply."""
-    for sentence in _SENTENCE_SPLIT_RE.split(paragraph.strip()):
-        lowered = sentence.lower()
-        if any(phrase in lowered for phrase in signal_phrases):
-            return sentence
-    if len(paragraph) <= QUOTE_MAX_CHARS:
-        return paragraph
-    return paragraph[:QUOTE_MAX_CHARS].rstrip() + "…"
-
-
-def _tagged_list(
-    rows: Sequence[dict], reason: str, follow_prefix: str, flag_name: str, signal_phrases: Sequence[str]
-) -> list[dict]:
+def _tagged_list(rows: Sequence[dict], reason: str, follow_prefix: str, flag_name: str) -> list[dict]:
     out = []
     for row in rows:
         n = len(row["paragraphs"])
@@ -673,7 +660,7 @@ def _tagged_list(
                 "ministry": row["ministry"],
                 "question": row["question"],
                 "paragraph_index": idx,
-                "quote": _trim_quote(row["paragraphs"][idx], signal_phrases),
+                "quote": row["paragraphs"][idx],  # the whole deciding paragraph, not an excerpt
                 flag_name: flag_value,
             }
         )
@@ -681,11 +668,11 @@ def _tagged_list(
 
 
 def build_no_data(rows: Sequence[dict]) -> list[dict]:
-    return _tagged_list(rows, "nodata", "collect", "collect_promised", NODATA_SIGNAL_PHRASES)
+    return _tagged_list(rows, "nodata", "collect", "collect_promised")
 
 
 def build_promised_later(rows: Sequence[dict]) -> list[dict]:
-    return _tagged_list(rows, "later", "date", "date_given", LATER_SIGNAL_PHRASES)
+    return _tagged_list(rows, "later", "date", "date_given")
 
 
 # --- loading / running --------------------------------------------------------------

@@ -19,12 +19,15 @@ independent check, never from this project's code (see below).
   have to add up to `no_hit` either.
 - `no-data.json`, `promised-later.json`: every pair that said, on any
   paragraph, that the data doesn't exist or that the matter is for later, with
-  the ministry, the question, the deciding paragraph's index, and a short
-  quote from it (the sentence that carries the reason, or else its first 300
-  characters), never the whole paragraph, and whether a collect promise or a
-  date came with it.
+  the ministry, the question, the deciding paragraph's index, the whole
+  paragraph as its quote (open data under NLOD, like the rest of the
+  session's replies), and whether a collect promise or a date came with it.
 - `tree-2024-2025.json`: the per-pair values and verdict for all 3,111 pairs,
-  ids and paragraph indices only, never the reply text itself.
+  ids and paragraph indices only, never the reply text itself. Includes
+  `swap_check_failed`: True on the rare pair where nothing in `why` fired and
+  the one follow-up request that would have checked `swap` failed outright,
+  so the `unsure`/`not_answered` verdict on that pair was reached without
+  ever knowing whether the reply swapped in a different figure.
 - `blind-check.json`: not written by this project's code at all. A blind
   check by an independent reader, a separate AI model session that saw only
   the question, the reply and the label definitions, never Jev's own

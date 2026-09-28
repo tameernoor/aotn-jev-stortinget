@@ -99,10 +99,10 @@ An independent reader, a separate AI model session that saw only the question, t
 | someone else's job | 12 / 15 |
 | no data | 12 / 15 |
 | answered | 14 / 15 |
-| possible swap | 1 / 15 |
+| swapped (possible swap) | 1 / 15 |
 | no answer and no reason | 3 / 15 |
 
-The last two rows failed the check. At 1 in 15 and 3 in 15, "possible swap" and "no answer and no reason" agree far less often than every other category, so neither is reported anywhere in `results/tree/`: they were checked and set aside, not shipped.
+The last two rows failed the check. At 1 in 15 and 3 in 15, "swapped (possible swap)" and "no answer and no reason" agree far less often than every other category. Neither is reported in this README or in the three lists above; the same goes for `unsure` (an asked-type read landing strictly between the two bands, never itself sampled for the blind check). All three verdicts exist only as the raw per-pair `verdict` in `results/tree/tree-2024-2025.json`, checked and set aside rather than shipped.
 
 That is solid agreement on the other five, on what a paragraph says. It is not the same claim as "the reply as a whole failed to answer": across the 90 sampled non-answered pairs (the six categories above other than "answered", 15 each), the reader still judged 39 of them as answered overall, reading things the paragraph-by-paragraph pass didn't ask about, tone, an implied answer spread across two paragraphs, background that amounts to a yes. So this project does not say which questions went unanswered. It says what a reply's paragraphs actually contain, which turns out to be a more checkable claim than "answered or not" and, on this evidence, a more reliable one too.
 
@@ -150,4 +150,4 @@ Source: [data.stortinget.no](https://data.stortinget.no/), the Storting's own op
 
 Two endpoints, both open JSON with no login. `eksport/skriftligesporsmal?sesjonid=2024-2025&format=json` lists a session's written questions; `eksport/enkeltsporsmal?NSporsmalId=<id>&format=json` returns one question and its reply. The parameter has to be `NSporsmalId`; the similarly named `sporsmalid` redirects and often fails. The service rate-limits in bursts, usually without a `Retry-After` header, so `fetch.py` keeps at most 2 requests in flight, paces them, and on a 429 or 5xx response backs off for 15, 30, 60 then 120 seconds rather than retrying immediately.
 
-The full session's question and reply texts are not committed here (`data/raw/` is git-ignored), so `fetch` is needed before a fresh run. `results/tree/` is committed. `tree-2024-2025.json` keeps only ids, paragraph indices and values, never any reply text; `no-data.json` and `promised-later.json` each carry one short quote per pair, the sentence that carries the reason or, failing that, the paragraph's first 300 characters, not the whole reply. So the numbers above are checkable without fetching anything.
+The full session's question and reply texts are not committed here (`data/raw/` is git-ignored), so `fetch` is needed before a fresh run. `results/tree/` is committed. `tree-2024-2025.json` keeps only ids, paragraph indices and values, never any reply text; `no-data.json` and `promised-later.json` each carry the one paragraph that decided the tag, in full, which is open data under NLOD like the rest of the session's replies (see above). So the numbers above are checkable without fetching anything.
