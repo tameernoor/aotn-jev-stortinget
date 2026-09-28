@@ -19,8 +19,8 @@ PROGRESS_INTERVAL pairs.
 `build_record` turns one pair's raw JSON into a `Record`: the HTML text fields
 (sporsmal, begrunnelse, svar) become plain text and Stortinget's
 /Date(<epoch ms>[+-]<offset>)/ strings become ISO dates. `load_records` reads
-every cached pair for a session back into `Record`s without touching the network,
-for sets.py and anything downstream that needs the normalised data.
+every cached pair for a session back into `Record`s without touching the
+network, for tree.py and anything downstream that needs the normalised data.
 """
 
 from __future__ import annotations

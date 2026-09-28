@@ -1,8 +1,8 @@
 """tree.py, offline only: FakeJev stands in for Jev, and --from never touches it
-at all. Covers the paragraph split, the question ids built per asked type and
-per why-not reason, every verdict() path, the routing (why-not only for a pair
-route_stage did not answer, a follow-up only for the reason that actually
-fired), and the aggregation into results/tree/'s five outputs.
+at all. Covers the ask stage, the paragraph split, the question ids built per
+asked type and per why-not reason, every verdict() path, the routing (why-not
+only for a pair route_stage did not answer, a follow-up only for the reason
+that actually fired), and the aggregation into results/tree/'s five outputs.
 """
 
 import asyncio
@@ -17,6 +17,7 @@ from jev_stortinget.jev import JevResult
 from jev_stortinget.tree import (
     MAX_IN_FLIGHT,
     MAX_PARAGRAPHS,
+    ask_stage,
     build_by_minister,
     build_follow_questions,
     build_no_data,
@@ -26,6 +27,7 @@ from jev_stortinget.tree import (
     build_summary,
     build_why_questions,
     format_by_minister_table,
+    load_ask_questions,
     load_stage1_asked,
     paragraphs,
     reply_says_tags,
@@ -35,6 +37,59 @@ from jev_stortinget.tree import (
     verdict,
     whynot_stage,
 )
+
+# --- ask_stage(): stage 1, one request per pair, question only ----------------------
+
+
+def test_load_ask_questions_has_exactly_the_seven_asks_ids():
+    questions = load_ask_questions()
+    assert set(questions) == {
+        "asks_amount", "asks_time", "asks_yes_or_no", "asks_action", "asks_why", "asks_assessment", "asks_facts",
+    }
+    for spec in questions.values():
+        assert spec["type"] == "noul"
+
+
+def test_ask_stage_sends_one_request_per_pair_with_only_the_question():
+    records = [
+        Record(1, 1, "m", "m", "MP", "X", None, None, "Q1", "Reply one."),
+        Record(2, 2, "m", "m", "MP", "X", None, None, "Q2", "Reply two."),
+    ]
+    fake = FakeJev(values={"asks_yes_or_no": 0.9})
+
+    values = asyncio.run(ask_stage(records, fake.ask))
+
+    assert set(values) == {1, 2}
+    assert values[1]["asks_yes_or_no"] == pytest.approx(0.9)
+    assert len(fake.calls) == 2
+    assert set(fake.calls[0]["state"]) == {"question"}  # no reply sent at stage 1
+    assert set(fake.calls[0]["questions"]) == set(load_ask_questions())
+
+
+def test_ask_stage_respects_max_in_flight():
+    records = [Record(i, i, "m", "m", "MP", "X", None, None, f"Q{i}", f"Reply {i}.") for i in range(1, 31)]
+    tracker = ConcurrencyTrackingAsk(delay=0.01)
+
+    values = asyncio.run(ask_stage(records, tracker))
+
+    assert len(values) == 30
+    assert 1 < tracker.peak <= MAX_IN_FLIGHT
+
+
+def test_ask_stage_drops_a_pair_that_failed_every_retry(monkeypatch, capsys):
+    import jev_stortinget.tree as tree_module
+
+    monkeypatch.setattr(tree_module, "RETRY_SLEEP_SECONDS", 0)
+    records = [Record(1, 1, "m", "m", "MP", "X", None, None, "Q1", "Reply one.")]
+    fake = FakeJev(error=RuntimeError("boom"))
+
+    values = asyncio.run(ask_stage(records, fake.ask))
+
+    assert values == {}
+    out = capsys.readouterr().out
+    assert "ask stage" in out
+    assert "[1]" in out
+
 
 # --- paragraphs(): split, strip, cap -------------------------------------------------
 
@@ -282,13 +337,13 @@ def test_route_stage_respects_max_in_flight():
 
 
 def test_load_stage1_asked_reads_asks_types_at_or_above_the_yes_band(tmp_path):
-    path = tmp_path / "results.jsonl"
-    lines = [
-        {"id": 1, "values": {"asks_yes_or_no": 0.9, "asks_action": 0.5}},
-        {"id": 2, "values": {"asks_yes_or_no": 0.1}},  # nothing recognised
-        {"id": 3, "values": {"asks_amount": 0.8, "asks_time": 0.8}},  # boundary counts as yes
-    ]
-    path.write_text("\n".join(json.dumps(line) for line in lines), encoding="utf-8")
+    path = tmp_path / "asks.json"
+    data = {
+        "1": {"asks_yes_or_no": 0.9, "asks_action": 0.5},
+        "2": {"asks_yes_or_no": 0.1},  # nothing recognised
+        "3": {"asks_amount": 0.8, "asks_time": 0.8},  # boundary counts as yes
+    }
+    path.write_text(json.dumps(data), encoding="utf-8")
 
     asked = load_stage1_asked(path)
 
@@ -436,6 +491,11 @@ def test_tree_cli_from_rebuilds_outputs_without_any_ask(tmp_path, monkeypatch):
     )
     results_dir = tmp_path / "results-tree"
     monkeypatch.setattr(tree_module, "DEFAULT_RESULTS_DIR", results_dir)
+    stage1_path = tmp_path / "asks.json"
+    stage1_path.write_text(
+        json.dumps({"1": {"asks_yes_or_no": 0.9}, "2": {"asks_yes_or_no": 0.9}}), encoding="utf-8"
+    )
+    monkeypatch.setattr(tree_module, "DEFAULT_STAGE1_PATH", stage1_path)
 
     main(["tree", "--from", str(from_path)])
 
@@ -455,6 +515,8 @@ def test_tree_function_from_path_never_builds_a_jev_client(tmp_path, monkeypatch
 
     from_path = tmp_path / "tree-all.json"
     from_path.write_text(json.dumps([_tree_row()]), encoding="utf-8")
+    stage1_path = tmp_path / "asks.json"
+    stage1_path.write_text(json.dumps({"1": {"asks_yes_or_no": 0.9}}), encoding="utf-8")
 
     def _boom(*args, **kwargs):
         raise AssertionError("a --from run must never build a Jev client")
@@ -463,7 +525,12 @@ def test_tree_function_from_path_never_builds_a_jev_client(tmp_path, monkeypatch
     monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
 
     summary = asyncio.run(
-        tree(from_path=from_path, out_dir=tmp_path / "out", results_dir=tmp_path / "results")
+        tree(
+            from_path=from_path,
+            out_dir=tmp_path / "out",
+            results_dir=tmp_path / "results",
+            stage1_path=stage1_path,
+        )
     )
     assert summary["n_pairs"] == 1
 

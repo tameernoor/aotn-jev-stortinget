@@ -2,7 +2,7 @@
 
 The SDK reads TYPESAFE_API_KEY and TYPESAFE_BASE_URL from the environment and
 retries rate limits and server errors itself. The model is pinned explicitly on
-every call (MODEL below): the thresholds in rules.py are tuned against
+every call (MODEL below): the thresholds in tree.py are tuned against
 jev-1.13.0, so a run must never drift to whatever "latest" happens to mean later.
 """
 
