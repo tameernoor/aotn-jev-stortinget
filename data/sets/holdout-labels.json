@@ -1,0 +1,422 @@
+[
+  {
+    "id": 98079,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "how the extra human-rights money was spent",
+    "reason": "Breaks down the 60 million: '40 millioner kroner går til menneskerettsforkjemparar' via EED and '20 millioner kroner går til tre ulike globale ordningar'."
+  },
+  {
+    "id": 104422,
+    "label": "answered",
+    "second_choice": "deferred",
+    "asks": "assessment of Vy's measures and planned mitigation",
+    "reason": "Names concrete mitigation such as 'allerede etablert supplerende busstransport' and directorate follow-up, though the 13+18 measures list 'skal bearbeides ytterligere'."
+  },
+  {
+    "id": 99755,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "cause of single-set trains, how many departures, what is done",
+    "reason": "Gives the cause ('tekniske utfordringer med togene', maintenance backlog) and actions ('økt bemanning på verkstedene, flere skift')."
+  },
+  {
+    "id": 100299,
+    "label": "pointed_elsewhere",
+    "second_choice": "not_answered",
+    "asks": "Rosebank spending to date; will government require risk assessment",
+    "reason": "Says Equinor 'oppgir ikke løpende investeringsbeløp', gives only expected total 3.8 bn USD, and says risk management is the board's job: 'det er styret som er ansvarlig'."
+  },
+  {
+    "id": 108815,
+    "label": "answered",
+    "second_choice": "not_answered",
+    "asks": "what the 11% self-financing figure includes; Norwegian estimate",
+    "reason": "Does not check the Swedish figure ('ikke hatt mulighet til å gå grundigere inn') but gives a Norwegian estimate that 'omfatter både økte skatteinntekter og reduserte trygdeutgifter'."
+  },
+  {
+    "id": 105220,
+    "label": "not_answered",
+    "second_choice": null,
+    "asks": "agree the situation is serious; extraordinary measures; role of counties",
+    "reason": "Lists general green-shipping policy and says the bankruptcy 'er uheldig' but proposes no extraordinary measures or county role."
+  },
+  {
+    "id": 100042,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "why the ministry's EEA interpretation differs; how it will handle the ESA complaint",
+    "reason": "Explains the ministry's own reasoning ('risikoen for at kravet er i strid med EØS-retten er liten') and says 'Eg vil sjølvsagd svare på dei spørsmål ESA måtte ha'."
+  },
+  {
+    "id": 104461,
+    "label": "not_answered",
+    "second_choice": "answered",
+    "asks": "whether Bane NOR coordinates poorly; will the minister arrange replacement buses",
+    "reason": "Only general dialogue and directorate follow-up ('følge opp dialogen', 'overvåke') plus a reference to another answer; no yes/no on buses or coordination."
+  },
+  {
+    "id": 99812,
+    "label": "answered",
+    "second_choice": "not_answered",
+    "asks": "breakdown of shelved Troms cases by offence group",
+    "reason": "Reply says it presents Riksadvokaten statistics ('har hentet ut følgende statistikk'), though the table itself is not in the text."
+  },
+  {
+    "id": 99862,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "whether the project's protection and security needs are met",
+    "reason": "Yes: a 2023 reassessment 'konkluderte ... at de planlagte beskyttelses- og sikringstiltakene ... var tilstrekkelige'."
+  },
+  {
+    "id": 99844,
+    "label": "answered",
+    "second_choice": "not_answered",
+    "asks": "concrete measures for more processing of salmon and trout",
+    "reason": "Names measures: expanded Sjømatrådet marketing, Nofima evaluation, external review of integration, and market access such as 'tollfrie importkvotar for tilverka og røykt laks'."
+  },
+  {
+    "id": 100311,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "whether Russian-crewed ships are a risk and what will be done",
+    "reason": "Gives a concrete action: 'russiske statsborgere fremover ikke lengre vil få utstedt tillatelse til å være kaptein på norskflaggede skip'."
+  },
+  {
+    "id": 103998,
+    "label": "answered",
+    "second_choice": "deferred",
+    "asks": "will Norway get the same reporting simplifications at the same time",
+    "reason": "Yes for the postponement: 'tar jeg derfor sikte på å endre våre overgangsregler slik at norske foretak får samme utsettelser'; scope changes to be assessed later."
+  },
+  {
+    "id": 104780,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "what the government does against hate speech",
+    "reason": "Describes concrete measures: national competence unit, district teams, 'Nasjonalt kompetansemiljø innen hatkriminalitet er styrket i 2024'."
+  },
+  {
+    "id": 104906,
+    "label": "answered",
+    "second_choice": "pointed_elsewhere",
+    "asks": "how the minister will ensure Skatteetaten follows up registration",
+    "reason": "Points to a concrete instruction in the 2024 allocation letter ('Skatteetaten skal gi prioritet til tips om forsvarspersonells'), while leaning on Forsvaret to inform staff."
+  },
+  {
+    "id": 101612,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "table of estimated vs actual amortisation costs",
+    "reason": "Provides 'Tabell 1' with annual estimates and actual changes from 2013, noting estimates only exist from 2013."
+  },
+  {
+    "id": 98480,
+    "label": "answered",
+    "second_choice": "deferred",
+    "asks": "how to solve unarmed border police; permanent area arming",
+    "reason": "Explains area arming can only be 'for et begrenset tidsrom' and says 'Jeg har derfor igangsatt arbeidet med en ny og revidert politisamarbeidsavtale med Sverige'."
+  },
+  {
+    "id": 108762,
+    "label": "answered",
+    "second_choice": "not_answered",
+    "asks": "is it honest to take credit for a decision the party voted against",
+    "reason": "Defends the credit by saying the ministry 'var altså departementet godt i gang' before the vote, which is the minister's position."
+  },
+  {
+    "id": 105077,
+    "label": "answered",
+    "second_choice": "premise_corrected",
+    "asks": "would closing the school breach the listing decision",
+    "reason": "No: the listing 'betyr likevel ikke at fredningsvedtaket begrenser bruken til at det må være skole videre'."
+  },
+  {
+    "id": 106356,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "difference in counting method 2012 vs 2024",
+    "reason": "Explains manual counts in 2012 versus 'registrering via automatisk tellesystem (APC)' from 2017."
+  },
+  {
+    "id": 98171,
+    "label": "answered",
+    "second_choice": "not_answered",
+    "asks": "guarantee Norway won't trade quotas or prioritise farmed-fish market access",
+    "reason": "In substance: 'konsekvent norsk politikk å ikke akseptere en kobling mellom markedsadgang og ressursadgang', though no explicit guarantee."
+  },
+  {
+    "id": 100336,
+    "label": "answered",
+    "second_choice": "deferred",
+    "asks": "cost of Norgespris in 2025 and full year",
+    "reason": "Gives preliminary figures: 'kunne koste 3,8 mrd. kroner i helårsvirkning' and '800 millioner' for 2025, with firm numbers to come in RNB."
+  },
+  {
+    "id": 107563,
+    "label": "answered",
+    "second_choice": "deferred",
+    "asks": "what is done to protect people from lead at shooting ranges",
+    "reason": "Concrete step: 'Miljødirektoratet fikk derfor før sommeren i oppdrag å innhente og sammenstille kunnskap' as basis for regulations."
+  },
+  {
+    "id": 100096,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "how full EV fleet affects preparedness; assessment of EV vs fossil vulnerability",
+    "reason": "Gives the assessment: EVs 'er ... sårbare i krise- og krigssituasjoner' but can 'redusere avhengigheten av forsyninger av bensin og diesel'."
+  },
+  {
+    "id": 98688,
+    "label": "deferred",
+    "second_choice": "not_answered",
+    "asks": "anything preventing Stavanger/Jåttå as NATO air command host",
+    "reason": "Says 'Det er for tidlig å si noe om både innretning og lokalisering' with a NATO decision 'ventes neste år'."
+  },
+  {
+    "id": 98673,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "is Helse Midt-Norge's conduct in line with the waiting-time pledge",
+    "reason": "Yes in substance: strengthening own staff 'er i tråd med føringer i Ventetidsløftet'."
+  },
+  {
+    "id": 101932,
+    "label": "pointed_elsewhere",
+    "second_choice": "not_answered",
+    "asks": "does the minister support closing DPS services in Troms",
+    "reason": "Declines to judge: 'Lokalisering og dimensjonering av tjenestene er de regionale helseforetakenes ansvar'."
+  },
+  {
+    "id": 106321,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "total carry-forward losses of companies at last assessment",
+    "reason": "Gives the figure: 'samlede underskudd til fremføring på 1 134 mrd. kroner' at end of 2023."
+  },
+  {
+    "id": 104096,
+    "label": "answered",
+    "second_choice": "premise_corrected",
+    "asks": "has the government written off Knutshø and Rondane",
+    "reason": "No: 'regjeringen på ingen måte har avskrevet Knutshø, Snøhetta og Rondane'."
+  },
+  {
+    "id": 104470,
+    "label": "not_answered",
+    "second_choice": "answered",
+    "asks": "will private actors get more financial responsibility for errors",
+    "reason": "Lists obstacles ('vil derfor kreve lovendringer', 'reiser mange problemstillinger') without a clear yes or no or commitment."
+  },
+  {
+    "id": 98723,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "total present value of Norway's fishery resources",
+    "reason": "Gives estimates under several approaches: '770 milliarder', 'om lag 403 milliarder' and '1008 milliarder kroner'."
+  },
+  {
+    "id": 100214,
+    "label": "deferred",
+    "second_choice": "answered",
+    "asks": "will the minister ensure complainants get copies; concern about OneNote",
+    "reason": "Defends OneNote security and says she will 'be om at Helseklage gir departementet en orientering' on further access."
+  },
+  {
+    "id": 101634,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "status of the new tax treaty with Pakistan and when in force",
+    "reason": "'Forhandlingane er ikkje avslutta' and 'ikkje sannsynleg at ein ny avtale vil tre i kraft før tidlegast 2027'."
+  },
+  {
+    "id": 98326,
+    "label": "pointed_elsewhere",
+    "second_choice": "deferred",
+    "asks": "will the minister consider extending agreements and an extra tender",
+    "reason": "No commitment; relies on Helse Sør-Øst ('alle som i dag har avtale vil kunne drive videre i minst 6 måneder') and 'må gjøres av fagmiljøene', plus a planned meeting."
+  },
+  {
+    "id": 99998,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "how to avoid AAP recipients losing housing support",
+    "reason": "Concrete rule change: 'Husbanken telle med berre to tredelar av inntekta', in force '1. januar 2025'."
+  },
+  {
+    "id": 107612,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "whether Forsvaret got a new military-advice assignment, background, deadlines",
+    "reason": "No: 'Det er ikke gitt et konkret oppdrag til Forsvaret og forsvarssjefen om å utarbeide et nytt helhetlig'."
+  },
+  {
+    "id": 101706,
+    "label": "answered",
+    "second_choice": "deferred",
+    "asks": "have enough new trains been ordered",
+    "reason": "In substance yes: 'togene som er kjøpt [skal] være tilstrekkelig', with options to be assessed later."
+  },
+  {
+    "id": 104316,
+    "label": "answered",
+    "second_choice": "not_answered",
+    "asks": "how much of the 5.4 bn police increase went to pensions, IT, wage/price growth",
+    "reason": "Gives the corrected real increase 'på 3,2 milliarder kroner', '320 millioner kroner' for pensions, and no earmarked IT money."
+  },
+  {
+    "id": 105014,
+    "label": "pointed_elsewhere",
+    "second_choice": null,
+    "asks": "will the minister work for same nitromethane rules as neighbours",
+    "reason": "'ikke under Kultur- og likestillingsdepartementets ansvarsområde'; JD and DSB are responsible."
+  },
+  {
+    "id": 105138,
+    "label": "answered",
+    "second_choice": "premise_corrected",
+    "asks": "will the ministry communicate its line to Statens vegvesen",
+    "reason": "Says the ministry wrote on '21. mars 2025 med kopi til Statens vegvesen', which 'vil ta hensyn til denne tolkningen', while noting 30% is 'ikke en absolutt grense'."
+  },
+  {
+    "id": 98164,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "will iodine be added to the pregnancy health card",
+    "reason": "No: Helsedirektoratet found it 'ikke vil gi den effekten vi ønsker' and the minister prefers the iodine strategy."
+  },
+  {
+    "id": 104497,
+    "label": "answered",
+    "second_choice": "deferred",
+    "asks": "who controls tourist fishing and is control sufficient",
+    "reason": "'Tolletaten er ansvarlig for å håndheve utførselsregelverket'; admits control tools are lacking and new measures are being assessed."
+  },
+  {
+    "id": 104944,
+    "label": "deferred",
+    "second_choice": null,
+    "asks": "government's assessment of NZIA versus Constitution § 97",
+    "reason": "'En vurdering av forholdet til Grunnloven § 97 kan derfor først ferdigstilles når Norges posisjon ... er avklart'."
+  },
+  {
+    "id": 98276,
+    "label": "pointed_elsewhere",
+    "second_choice": "not_answered",
+    "asks": "does the minister think a human-rights breach is happening in Innlandet",
+    "reason": "No yes/no; says counties must assess children's best interest: 'Det er dei som har ansvar for saka'."
+  },
+  {
+    "id": 107582,
+    "label": "answered",
+    "second_choice": "not_answered",
+    "asks": "calculations, measures, costs and annual CO2 prices for the 2035 target",
+    "reason": "Gives projections and cost estimate 'mellom 10 og 21 mrd. kroner' with per-tonne assumptions, though 'ikke regnet på kostnader knyttet til konkrete nasjonale tiltak'."
+  },
+  {
+    "id": 100273,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "how the rare-diagnoses strategy measures were followed up",
+    "reason": "Details follow-up: RHF assignments, 'Nasjonalt senter for sjeldne diagnoser ... er etablert', registry, screening expansion."
+  },
+  {
+    "id": 104942,
+    "label": "deferred",
+    "second_choice": null,
+    "asks": "will NZIA CO2 injection investments be deductible in petroleum tax",
+    "reason": "'Det er derfor for tidlig å si noe om den skattemessige behandlingen'."
+  },
+  {
+    "id": 100344,
+    "label": "answered",
+    "second_choice": "deferred",
+    "asks": "full-year effect of 40-øre fixed-price deals",
+    "reason": "Gives 'kunne koste 3,8 mrd. kroner i helårsvirkning for husholdningene', with budget figures to come in RNB."
+  },
+  {
+    "id": 106381,
+    "label": "deferred",
+    "second_choice": "answered",
+    "asks": "how long the extended school day will be; mandatory until 15",
+    "reason": "Rules out mandatory attendance after teachers' hours but says 'Regjeringen har ikke startet et slikt arbeid' before any decision."
+  },
+  {
+    "id": 107694,
+    "label": "premise_corrected",
+    "second_choice": "answered",
+    "asks": "why age points are not phased out at the same time as quota changes",
+    "reason": "Corrects the premise: the regulation now sets 'en samlet overgangsordning med utsatt ikrafttredelse til 1. januar 2028 for alle endringene'."
+  },
+  {
+    "id": 101891,
+    "label": "answered",
+    "second_choice": "deferred",
+    "asks": "will district heating be included in the Norgespris consultation",
+    "reason": "Yes in substance: 'Regjeringen vil derfor foreslå en ordning for fjernvarmekunder', though details come 'i egen høring'."
+  },
+  {
+    "id": 105214,
+    "label": "answered",
+    "second_choice": "not_answered",
+    "asks": "does the minister share concerns about commercial apps; what will be done",
+    "reason": "Gives an action, 'gitt Norsk helsenett og Helsedirektoratet i oppdrag å vidareutvikle eit tilbod om digital foreldrestøtte', without stating whether she shares the concern."
+  },
+  {
+    "id": 98724,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "what evaluation has been made of the model for non-union staff",
+    "reason": "Cites the Fafo/ISF report 'Utredning av konsekvenser av ulike hovedtariffavtaler i staten' and its findings on non-union staff."
+  },
+  {
+    "id": 104861,
+    "label": "deferred",
+    "second_choice": "answered",
+    "asks": "how to use vehicle developments, protect local roads, raise weight limits",
+    "reason": "On the weight increase 'Det er derfor for tidlig å si om ... krav til ekstra akslinger', work 'i sluttfasen'; mentions the 74-tonne trial."
+  },
+  {
+    "id": 98174,
+    "label": "not_answered",
+    "second_choice": "answered",
+    "asks": "view on cutting NO2 grid tariff; legality of using bottleneck revenue",
+    "reason": "Describes the existing scheme tied to 'prisnivået i de enkelte prisområdene' and the rules, without stating a view on an NO2 reduction."
+  },
+  {
+    "id": 101881,
+    "label": "premise_corrected",
+    "second_choice": null,
+    "asks": "why the 2024 surplus on ch. 443 was not carried over",
+    "reason": "Corrects the premise: accounts not done, and 'Det ligger an til at kap. 443, post 01 får tildelt 40,8 mill. kroner i overføringer'."
+  },
+  {
+    "id": 100420,
+    "label": "pointed_elsewhere",
+    "second_choice": null,
+    "asks": "channels of Norges Bank company dialogue; frequency of direct contacts",
+    "reason": "'departementet ikke vurderer eller tar stilling til ... bankens dialog knyttet til enkeltselskaper'; Norges Bank acts independently."
+  },
+  {
+    "id": 105074,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "which body decides siting, roles of municipality and ministry, cooperation",
+    "reason": "'Det er i utgangspunktet kommunen som er planmyndighet' unless a state plan, and the ministry backs a feasibility study."
+  },
+  {
+    "id": 98395,
+    "label": "answered",
+    "second_choice": null,
+    "asks": "will the minister approach Denmark about Kosovo prison capacity",
+    "reason": "No: 'Vi ser det derfor ikke som hensiktsmessig nå å benytte andre lands fengselskapasitet'."
+  },
+  {
+    "id": 104447,
+    "label": "answered",
+    "second_choice": "not_answered",
+    "asks": "overview of wind-power vulnerability and estimates of consequences",
+    "reason": "Assessment given: 'vil ikke det enkelte vindkraftverk utgjøre en sårbarhet', though no consequence estimates."
+  }
+]
