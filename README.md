@@ -10,7 +10,7 @@ The code is here to learn from, not to run in production. Each project shows one
 
 ## What it does
 
-Jev reads all 3,111 written questions to ministers in the Storting's 2024-2025 session, and every paragraph of each reply. The questions to Jev are narrow yes/no questions. Code decides what the answers add up to.
+Jev reads all 3,234 written questions to ministers in the Storting's 2024-2025 session, and every paragraph of each reply. The questions to Jev are narrow yes/no questions. Code decides what the answers add up to.
 
 ## The Jev mechanism
 
@@ -18,7 +18,7 @@ Jev gets a **state** (the texts) and **typed questions**, and returns one calibr
 
 The questions come in three rounds. Code decides which questions each reply gets in the next round.
 
-**1. What does the question ask for?** Seven nouls about the question text: `asks_amount`, `asks_time`, `asks_yes_or_no`, `asks_action`, `asks_why`, `asks_assessment`, `asks_facts` (`questions/asks.yaml`). Several can be yes.
+**1. What does the question ask for?** Seven nouls about the question and reply together: `asks_amount`, `asks_time`, `asks_yes_or_no`, `asks_action`, `asks_why`, `asks_assessment`, `asks_facts` (`questions/asks.yaml`). Several can be yes. All 3,234 questions are asked; 3,111 ask for something recognised and go on to step 2.
 
 **2. Does a paragraph give it?** Code splits the reply into paragraphs and **generates** one question per paragraph for each thing asked. All of them go to Jev in a single request, for example:
 
@@ -75,9 +75,12 @@ Each request carries all of one reply's questions, and Jev answers them in paral
 
 | | Requests | Questions answered | Cost | Time |
 |---|---|---|---|---|
+| Step 1: what does the question ask for? | 3,234 | 22,638 | not separable | not separable |
 | Step 2: does a paragraph give it? | 3,111 | 31,567 | $0.29 | 96 s |
 | Step 3: what does it say instead? | 3,337 | 45,570 | $0.385 | 98 s |
-| Total | 6,448 | 77,137 | $0.675 | 194 s |
+| Total (steps 2 and 3) | 6,448 | 77,137 | $0.675 | 194 s |
+
+Step 1's values come from an earlier run that asked these seven questions alongside eleven others in the same request, $0.55 for the whole session. Neither cost nor time splits out to step 1 alone, so both are left out of the total above.
 
 ## How to run
 
