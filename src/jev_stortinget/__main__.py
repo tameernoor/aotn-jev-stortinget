@@ -3,6 +3,7 @@
     uv run python -m jev_stortinget fetch [--session 2024-2025]
     uv run python -m jev_stortinget sets
     uv run --env-file .env python -m jev_stortinget run --set dev|holdout|all [--out out/] [--cache FILE]
+    uv run python -m jev_stortinget tree [--from out/tree-all.json]
 
 `fetch` pulls the session's list of written questions, then every pair not
 already cached under data/raw/<session>/, at most 2 requests in flight,
@@ -18,6 +19,12 @@ writes data/sets/dev.json and data/sets/holdout.json.
 (see run.py for the full behaviour: the judgments cache, the cache hash guard, the
 evaluation and ranking outputs). Needs TYPESAFE_API_KEY in the environment, and
 only once a pair actually has to be asked.
+
+`tree` builds the dodge tree (see tree.py): routes every part-1 pair with a
+recognised asked type back to Jev, paragraph by paragraph, and writes
+results/tree/. `--from FILE` skips Jev entirely and only rebuilds those outputs
+from a previous run's full output (out/tree-all.json); without it, a fresh run
+needs TYPESAFE_API_KEY and out/all/results.jsonl (part 1's own run).
 """
 
 from __future__ import annotations
@@ -32,6 +39,7 @@ from .jev import AskFn
 from .run import DEFAULT_OUT_DIR, SET_NAMES
 from .run import run as run_set
 from .sets import draw_sets, write_sets
+from .tree import tree as run_tree
 
 
 def _fetch(session: str) -> None:
@@ -71,6 +79,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--cache", metavar="FILE", default=None, help="seed the judgments cache from FILE instead of out/judgments.json"
     )
 
+    tree_parser = subparsers.add_parser("tree", help="Build the dodge tree and write results/tree/.")
+    tree_parser.add_argument(
+        "--from", dest="from_path", metavar="FILE", default=None, help="skip Jev, rebuild outputs from FILE"
+    )
+
     return parser
 
 
@@ -84,6 +97,9 @@ def main(argv: Sequence[str] | None = None, ask: AskFn | None = None) -> None:
         out_dir = Path(args.out) if args.out is not None else None
         seed_cache = Path(args.cache) if args.cache is not None else None
         asyncio.run(run_set(args.set_name, out_dir=out_dir, ask=ask, seed_cache=seed_cache))
+    elif args.command == "tree":
+        from_path = Path(args.from_path) if args.from_path is not None else None
+        asyncio.run(run_tree(from_path=from_path, ask=ask))
 
 
 if __name__ == "__main__":

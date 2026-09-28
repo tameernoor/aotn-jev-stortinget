@@ -1,0 +1,28 @@
+{
+  "n_pairs": 3111,
+  "answered": 1226,
+  "no_hit": 1885,
+  "reply_says": {
+    "nodata": 130,
+    "nocomment": 81,
+    "elsewhere": 573,
+    "later": 751,
+    "earlier": 182
+  },
+  "cost": {
+    "route_stage": {
+      "pairs": 3111,
+      "paragraph_questions": 31567,
+      "input_tokens": 6902350,
+      "cost_usd": 0.2899,
+      "wall_seconds": 96
+    },
+    "whynot_stage": {
+      "pairs": 1885,
+      "requests": 3337,
+      "cost_usd": 0.385,
+      "wall_seconds": 98
+    },
+    "total_usd": 0.6749
+  }
+}

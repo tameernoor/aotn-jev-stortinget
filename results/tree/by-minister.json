@@ -1,0 +1,164 @@
+{
+  "ministries": {
+    "barne- og familieministeren": {
+      "n": 70,
+      "nodata": 4,
+      "nocomment": 1,
+      "elsewhere": 8,
+      "later": 18,
+      "earlier": 7
+    },
+    "samferdselsministeren": {
+      "n": 414,
+      "nodata": 20,
+      "nocomment": 0,
+      "elsewhere": 84,
+      "later": 112,
+      "earlier": 30
+    },
+    "energiministeren": {
+      "n": 242,
+      "nodata": 7,
+      "nocomment": 3,
+      "elsewhere": 41,
+      "later": 56,
+      "earlier": 4
+    },
+    "forsknings- og høyere utdanningsministeren": {
+      "n": 73,
+      "nodata": 4,
+      "nocomment": 0,
+      "elsewhere": 17,
+      "later": 13,
+      "earlier": 2
+    },
+    "klima- og miljøministeren": {
+      "n": 175,
+      "nodata": 3,
+      "nocomment": 4,
+      "elsewhere": 28,
+      "later": 50,
+      "earlier": 8
+    },
+    "utenriksministeren": {
+      "n": 96,
+      "nodata": 1,
+      "nocomment": 0,
+      "elsewhere": 11,
+      "later": 14,
+      "earlier": 8
+    },
+    "landbruks- og matministeren": {
+      "n": 78,
+      "nodata": 1,
+      "nocomment": 0,
+      "elsewhere": 7,
+      "later": 9,
+      "earlier": 2
+    },
+    "helse- og omsorgsministeren": {
+      "n": 423,
+      "nodata": 15,
+      "nocomment": 6,
+      "elsewhere": 138,
+      "later": 119,
+      "earlier": 29
+    },
+    "kultur- og likestillingsministeren": {
+      "n": 100,
+      "nodata": 3,
+      "nocomment": 2,
+      "elsewhere": 14,
+      "later": 29,
+      "earlier": 3
+    },
+    "finansministeren": {
+      "n": 245,
+      "nodata": 17,
+      "nocomment": 7,
+      "elsewhere": 14,
+      "later": 50,
+      "earlier": 17
+    },
+    "justis- og beredskapsministeren": {
+      "n": 331,
+      "nodata": 15,
+      "nocomment": 17,
+      "elsewhere": 53,
+      "later": 65,
+      "earlier": 28
+    },
+    "fiskeri- og havministeren": {
+      "n": 118,
+      "nodata": 2,
+      "nocomment": 9,
+      "elsewhere": 19,
+      "later": 45,
+      "earlier": 5
+    },
+    "arbeids- og inkluderingsministeren": {
+      "n": 122,
+      "nodata": 5,
+      "nocomment": 4,
+      "elsewhere": 11,
+      "later": 26,
+      "earlier": 5
+    },
+    "utviklingsministeren": {
+      "n": 23,
+      "nodata": 1,
+      "nocomment": 1,
+      "elsewhere": 3,
+      "later": 10,
+      "earlier": 1
+    },
+    "kunnskapsministeren": {
+      "n": 134,
+      "nodata": 14,
+      "nocomment": 4,
+      "elsewhere": 35,
+      "later": 24,
+      "earlier": 7
+    },
+    "kommunal- og distriktsministeren": {
+      "n": 143,
+      "nodata": 5,
+      "nocomment": 15,
+      "elsewhere": 29,
+      "later": 28,
+      "earlier": 7
+    },
+    "forsvarsministeren": {
+      "n": 134,
+      "nodata": 0,
+      "nocomment": 1,
+      "elsewhere": 6,
+      "later": 40,
+      "earlier": 8
+    },
+    "næringsministeren": {
+      "n": 123,
+      "nodata": 6,
+      "nocomment": 7,
+      "elsewhere": 43,
+      "later": 24,
+      "earlier": 6
+    },
+    "digitaliserings- og forvaltningsministeren": {
+      "n": 56,
+      "nodata": 6,
+      "nocomment": 0,
+      "elsewhere": 9,
+      "later": 15,
+      "earlier": 5
+    },
+    "statsministeren": {
+      "n": 11,
+      "nodata": 1,
+      "nocomment": 0,
+      "elsewhere": 3,
+      "later": 4,
+      "earlier": 0
+    }
+  }
+}
