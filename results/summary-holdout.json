@@ -1,0 +1,17 @@
+{
+  "counts": {
+    "answered": 36,
+    "unclear": 18,
+    "premise_corrected": 1,
+    "deferred": 2,
+    "pointed_elsewhere": 3
+  },
+  "calls": 60,
+  "input_tokens": 247786,
+  "cost_usd": 0.010407012,
+  "wall_seconds": 8.097072292119265,
+  "model_ids": [
+    "jev-1.13.0"
+  ],
+  "cache_ignored": false
+}
