@@ -8,7 +8,7 @@ The code is here to learn from, not to run in production. Each project shows one
 - [aotn-jev-turbine-triage](https://github.com/tameernoor/aotn-jev-turbine-triage): a year of real wind turbine alarms, triaged and checked against the operator's own labels
 - [aotn-jev-stortinget](https://github.com/tameernoor/aotn-jev-stortinget): did the minister answer the question? A full session of the Norwegian parliament
 
-A small example in the aotn series. It reads every written question a member of the
+This project reads every written question a member of the
 Storting put to a government minister in the 2024-2025 session, and the minister's
 reply, and asks Jev 18 literal yes/no questions about the two texts. Plain code
 combines the answers into one of six outcomes: answered, premise_corrected,
@@ -52,8 +52,9 @@ goes to unclear rather than a guess.
 ## Data and licence
 
 Source: [data.stortinget.no](https://data.stortinget.no/), the Storting's own open
-data service. The data is free for anyone to use, provided Stortinget is credited
-as the source; the terms are at
+data service. The data is free for anyone to use under the Norwegian Licence for
+Open Government Data (NLOD), provided Stortinget is credited as the source; the
+terms are at
 [data.stortinget.no/om-datatjenesten/bruksvilkar](https://data.stortinget.no/om-datatjenesten/bruksvilkar/).
 
 Two endpoints, both open JSON with no login. `eksport/skriftligesporsmal?sesjonid=2024-2025&format=json`
@@ -378,13 +379,10 @@ The shadow, at the untuned 0.8 yes cut, matched 18 of 60; the decomposition's
 binary outcome matched 36 of 60. At the same 0.65 cut used for the reply side, the
 shadow would match 31 of 60, still fewer than the decomposition, and with more of
 its answers landing unclear rather than confidently wrong (see "Why these
-questions"). That gap is consistent with what the sibling turbine-triage project
-saw between its five literal questions and its three broad ones, and the reason is
-the same one the design work found before any pair was sent to Jev: a third of
-these written questions ask more than one thing in a single sentence, which is
-exactly the shape a single broad question answers worst.
+questions").The single question makes fewer confident mistakes (2 against 6); the
+decomposition decides more pairs and gets more of them right.
 
-The cost of that gap is size. Exact agreement with the reader is 57 %, not a number
+The limits are real. Exact agreement with the reader is 57 %, not a number
 to build a public ranking on by itself, and a third of the full session comes back
 unclear rather than a guess. That is the trade the rules are built to make: an
 uncertain reply-side read on the type actually asked about sends the pair to a

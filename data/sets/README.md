@@ -1,6 +1,6 @@
 # data/sets
 
-Source: Stortinget (data.stortinget.no).
+Source: Stortinget (data.stortinget.no), under the Norwegian Licence for Open Government Data (NLOD).
 
 Holds the dev and holdout sets drawn by `sets.py`, and the independent reader's
 labels for each.
