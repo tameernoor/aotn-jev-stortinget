@@ -1,7 +1,7 @@
 [project]
 name = "jev-stortinget"
 version = "0.1.0"
-description = "Jev judges whether ministers answered Storting's written questions, code decides. Companion code for an article."
+description = "Jev reads Storting written questions and replies paragraph by paragraph; code decides. Companion code for an article."
 requires-python = ">=3.12"
 dependencies = [
     "pyyaml>=6",

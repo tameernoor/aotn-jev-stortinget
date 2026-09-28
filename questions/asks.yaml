@@ -1,7 +1,7 @@
-# The seven asks_* nouls: what the written question asks for. Jev sees only
-# `question`. This is the tree's first stage (see tree.py); a pair is routed
-# on if any value comes back >= 0.8. Keys "true" and "false" are quoted so
-# YAML keeps them as strings.
+# The seven asks_* nouls: what the written question asks for. Jev sees both
+# `question` and `reply`. This is the tree's first stage (see tree.py); a
+# pair is routed on if any value comes back >= 0.8. Keys "true" and "false"
+# are quoted so YAML keeps them as strings.
 
 asks_amount:
   type: noul

@@ -5,7 +5,8 @@
 Three narrowing stages:
 
 1. Ask (`ask_stage`, questions/asks.yaml): the seven asks_* nouls about the
-   question text alone. Only pairs where one reads >= 0.8 enter the tree.
+   question and reply together. Only pairs where one reads >= 0.8 enter the
+   tree.
 2. Route (`route_stage`): the reply is split into paragraphs (paragraphs(),
    capped at MAX_PARAGRAPHS) and, in one request per pair, every paragraph is
    asked whether it gives each asked type (plus a nodata check on every
@@ -28,14 +29,19 @@ on its row instead of leaving `follow` looking like an empty, all-no answer.
 
 `--from FILE` skips Jev entirely and rebuilds results/tree/ from a previous
 run's full output (`out/tree-all.json`, gitignored, not part of the
-repository); stage 1's asked types are read back from the committed
-`results/tree/asks-2024-2025.json`, never from a fresh classify run.
+repository); every row there already carries its own `asked` from that run,
+so nothing is re-derived, and cost/wall time fall back to that run's own
+recorded numbers (ROUTE_STAGE_SECONDS and friends below) since nothing was
+actually measured this time. A fresh run writes its own stage-1 values to
+`results/tree/asks-2024-2025.json`, a report of what stage 1 found; nothing
+reads that file back.
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
+import time
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
@@ -49,8 +55,8 @@ from .jev import PRICE_PER_MTOK_USD, AskFn, Jev, JevResult
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT_DIR = REPO_ROOT / "out"
 DEFAULT_RESULTS_DIR = REPO_ROOT / "results" / "tree"
-DEFAULT_STAGE1_PATH = DEFAULT_RESULTS_DIR / "asks-2024-2025.json"
 ASKS_QUESTIONS_PATH = REPO_ROOT / "questions" / "asks.yaml"
+STAGE1_FILENAME = "asks-2024-2025.json"
 
 MAX_PARAGRAPHS = 12
 MAX_IN_FLIGHT = 20
@@ -70,10 +76,12 @@ SWAPPED = "swapped"
 UNSURE = "unsure"
 NOT_ANSWERED = "not_answered"
 
-# The real run's own totals. The route stage's per-row `tokens` lets its cost
-# be recomputed from any loaded file, but the why-not stage's per-request
-# tokens were only ever kept in a running total during the real run, so its
-# cost and both stages' wall time are kept here as constants instead.
+# The recorded run's own totals, used only when rebuilding with --from (a
+# fresh run measures its own instead). The route stage's per-row `tokens`
+# lets its cost be recomputed from any loaded file either way, but the
+# why-not stage's per-request tokens were only ever kept in a running total
+# during the recorded run, never written back onto a row, so its cost and
+# both stages' wall time are kept here as constants for that run specifically.
 ROUTE_STAGE_SECONDS = 96
 WHYNOT_STAGE_SECONDS = 98
 WHYNOT_STAGE_COST_USD = 0.385
@@ -267,17 +275,9 @@ def build_follow_questions(why_values: dict[str, float], n_paragraphs: int) -> d
                 follow[f"{name}_p{i + 1}"] = _paragraph_question(template, f"p{i + 1}")
     return follow
 
-# --- stage 1's asked types -----------------------------------------------------
-
 def _asked_types(values: dict[str, float]) -> list[str]:
+    """Which asked types read >= 0.8 among a pair's seven asks_* values."""
     return [t for t in ASKED_TYPES if values.get(f"asks_{t}", 0.0) >= YES]
-
-def load_stage1_asked(path: Path = DEFAULT_STAGE1_PATH) -> dict[int, list[str]]:
-    """id -> asked types (asks_* >= 0.8), from the committed stage-1 values
-    (id -> its seven asks_* values). A pair with none recognised never enters the tree."""
-    data = json.loads(path.read_text(encoding="utf-8"))
-    asked = {int(id_str): _asked_types(values) for id_str, values in data.items()}
-    return {id_: types for id_, types in asked.items() if types}
 
 # --- the async stages ----------------------------------------------------------
 
@@ -296,12 +296,14 @@ async def _ask_with_retries(
     return None
 
 async def _ask_stage_one(record: Record, questions: dict[str, dict], ask: AskFn, semaphore: asyncio.Semaphore):
-    result = await _ask_with_retries(ask, {"question": record.question}, questions, semaphore)
+    state = {"question": record.question, "reply": record.reply}
+    result = await _ask_with_retries(ask, state, questions, semaphore)
     return record.id, (None if result is None else {k: v["value"] for k, v in result.judgments.items()})
 
 async def ask_stage(records: Sequence[Record], ask: AskFn) -> dict[int, dict[str, float]]:
-    """Stage 1: the seven asks_* questions, one request per pair, at most
-    MAX_IN_FLIGHT in flight. Only the ids that answered are returned."""
+    """Stage 1: the seven asks_* questions about `question` and `reply`
+    together, one request per pair, at most MAX_IN_FLIGHT in flight. Only the
+    ids that answered are returned."""
     semaphore = asyncio.Semaphore(MAX_IN_FLIGHT)
     questions = load_ask_questions()
     pairs = await asyncio.gather(*(_ask_stage_one(r, questions, ask, semaphore) for r in records))
@@ -350,11 +352,13 @@ def route_hit(asked: Sequence[str], values: dict[str, float], n_paragraphs: int)
     return None
 
 async def _whynot_one(row: dict, ask: AskFn, semaphore: asyncio.Semaphore) -> None:
-    """Mutates `row` in place: adds `why` and `follow` (`follow` may be
-    empty), or `error: True` if the why-not request itself failed. If the
-    follow-up request failed instead (`date`, `collect` or `swap`, whichever
-    `why` earned), `follow_error: True` is set and `follow` stays `{}`: a
-    caller must read that as unknown, never as a confident no."""
+    """Mutates `row` in place: adds `why`, `follow` (`follow` may be empty)
+    and `whynot_tokens` (the input tokens this pair's why-not requests cost,
+    for a fresh run's own cost accounting), or `error: True` if the why-not
+    request itself failed. If the follow-up request failed instead (`date`,
+    `collect` or `swap`, whichever `why` earned), `follow_error: True` is set
+    and `follow` stays `{}`: a caller must read that as unknown, never as a
+    confident no."""
     ps = row["paragraphs"]
     n = len(ps)
     state = _paragraph_state(row["question"], ps)
@@ -364,6 +368,7 @@ async def _whynot_one(row: dict, ask: AskFn, semaphore: asyncio.Semaphore) -> No
         row["error"] = True
         return
     why_values = {k: v["value"] for k, v in why_result.judgments.items()}
+    tokens = why_result.meta["input_tokens"]
 
     follow_questions = build_follow_questions(why_values, n)
     follow_state = state
@@ -376,11 +381,13 @@ async def _whynot_one(row: dict, ask: AskFn, semaphore: asyncio.Semaphore) -> No
         follow_result = await _ask_with_retries(ask, follow_state, follow_questions, semaphore)
         if follow_result is not None:
             follow_values = {k: v["value"] for k, v in follow_result.judgments.items()}
+            tokens += follow_result.meta["input_tokens"]
         else:
             row["follow_error"] = True
 
     row["why"] = why_values
     row["follow"] = follow_values
+    row["whynot_tokens"] = tokens
 
 async def whynot_stage(rows: Sequence[dict], ask: AskFn) -> None:
     """Mutates every row in `rows` in place. The caller passes only the rows
@@ -511,7 +518,16 @@ def build_pair_record(row: dict) -> dict:
         "swap_check_failed": v["swap_check_failed"],
     }
 
-def build_summary(rows: Sequence[dict], pair_records: Sequence[dict]) -> dict:
+def build_summary(
+    rows: Sequence[dict],
+    pair_records: Sequence[dict],
+    route_seconds: float = ROUTE_STAGE_SECONDS,
+    whynot_seconds: float = WHYNOT_STAGE_SECONDS,
+    whynot_cost_usd: float = WHYNOT_STAGE_COST_USD,
+) -> dict:
+    """`route_seconds`/`whynot_seconds`/`whynot_cost_usd` default to the
+    recorded run's own numbers (for --from); a fresh run passes its own
+    measured ones instead (see `tree()`)."""
     answered = sum(1 for r in pair_records if r["verdict"] == ANSWERED)
     route_tokens = sum(row["tokens"] for row in rows)
     route_cost = route_tokens * PRICE_PER_MTOK_USD / 1_000_000
@@ -528,15 +544,15 @@ def build_summary(rows: Sequence[dict], pair_records: Sequence[dict]) -> dict:
                 "paragraph_questions": sum(len(row["values"]) for row in rows),
                 "input_tokens": route_tokens,
                 "cost_usd": round(route_cost, 4),
-                "wall_seconds": ROUTE_STAGE_SECONDS,
+                "wall_seconds": route_seconds,
             },
             "whynot_stage": {
                 "pairs": whynot_pairs,
                 "requests": whynot_requests,
-                "cost_usd": WHYNOT_STAGE_COST_USD,
-                "wall_seconds": WHYNOT_STAGE_SECONDS,
+                "cost_usd": whynot_cost_usd,
+                "wall_seconds": whynot_seconds,
             },
-            "total_usd": round(route_cost + WHYNOT_STAGE_COST_USD, 4),
+            "total_usd": round(route_cost + whynot_cost_usd, 4),
         },
     }
 
@@ -599,6 +615,13 @@ def build_promised_later(rows: Sequence[dict]) -> list[dict]:
 def load_tree_all(path: Path) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))
 
+def write_stage1(path: Path, ask_values: dict[int, dict[str, float]]) -> None:
+    """Write a fresh run's own stage-1 values compactly: one line per id, so
+    a diff against the committed file shows which pairs actually changed."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [f'  "{id_}": {json.dumps(ask_values[id_], ensure_ascii=False)}' for id_ in sorted(ask_values)]
+    path.write_text("{\n" + ",\n".join(lines) + "\n}", encoding="utf-8")
+
 class _LazyTreeJev:
     """Stands in for a real Jev() until the first request actually needs
     asking. A --from run never touches this at all."""
@@ -615,25 +638,46 @@ class _LazyTreeJev:
         if self._jev is not None:
             await self._jev.aclose()
 
-async def _run_fresh(ask: AskFn, session: str, raw_dir: Path | None, save_to: Path | None) -> list[dict]:
+async def _run_fresh(
+    ask: AskFn, session: str, raw_dir: Path | None, save_to: Path | None, stage1_save_to: Path | None
+) -> tuple[list[dict], float, float, float]:
+    """Runs all three stages live and returns (rows, route_seconds,
+    whynot_seconds, whynot_cost_usd): this run's own measured wall time for
+    each stage and its own why-not cost, computed from the tokens each
+    request actually used."""
     records = load_records(session, raw_dir=raw_dir)
+
     ask_values = await ask_stage(records, ask)
+    if stage1_save_to is not None:
+        write_stage1(stage1_save_to, ask_values)
     asked_by_id = {id_: types for id_, values in ask_values.items() if (types := _asked_types(values))}
+
+    route_started = time.perf_counter()
     rows = await route_stage(records, asked_by_id, ask)
+    route_seconds = round(time.perf_counter() - route_started, 1)
     rows = [row for row in rows if "error" not in row]
+
     todo = [row for row in rows if route_hit(row["asked"], row["values"], len(row["paragraphs"])) is None]
+    whynot_started = time.perf_counter()
     await whynot_stage(todo, ask)
+    whynot_seconds = round(time.perf_counter() - whynot_started, 1)
+    whynot_tokens = sum(row.get("whynot_tokens", 0) for row in todo)
+    whynot_cost_usd = round(whynot_tokens * PRICE_PER_MTOK_USD / 1_000_000, 4)
+
     if save_to is not None:
         save_to.parent.mkdir(parents=True, exist_ok=True)
         save_to.write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
-    return rows
+    return rows, route_seconds, whynot_seconds, whynot_cost_usd
 
 def _write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
-def _format_summary(summary: dict) -> str:
+def _format_summary(summary: dict, recorded: bool) -> str:
     cost = summary["cost"]
-    lines = [
+    lines = []
+    if recorded:
+        lines.append("Cost and wall time below are the recorded run's own numbers; this run skipped Jev.")
+    lines += [
         f"{summary['n_pairs']} pairs: {summary['answered']} answered, {summary['no_hit']} went to the why-not stage.",
         "Reply-says tags (a reply can carry more than one): "
         + ", ".join(f"{tag} {n}" for tag, n in summary["reply_says"].items()),
@@ -652,34 +696,34 @@ async def tree(
     ask: AskFn | None = None,
     session: str = DEFAULT_SESSION,
     raw_dir: Path | None = None,
-    stage1_path: Path | None = None,
 ) -> dict:
     """Build the dodge tree's rows (from `from_path` if given, skipping Jev
-    and reading stage 1's asked types back from `stage1_path`; otherwise a
-    fresh run against `ask`, or a real Jev() built lazily), then write every
-    results/tree/ output. Prints and returns the summary."""
+    entirely; otherwise a fresh run against `ask`, or a real Jev() built
+    lazily), then write every results/tree/ output. Prints and returns the
+    summary."""
     out_dir = out_dir if out_dir is not None else DEFAULT_OUT_DIR
     results_dir = results_dir if results_dir is not None else DEFAULT_RESULTS_DIR
-    stage1_path = stage1_path if stage1_path is not None else DEFAULT_STAGE1_PATH
 
     if from_path is not None:
         rows = load_tree_all(from_path)
-        asked_by_id = load_stage1_asked(stage1_path)
-        for row in rows:
-            row["asked"] = asked_by_id[row["id"]]
+        route_seconds, whynot_seconds, whynot_cost_usd = ROUTE_STAGE_SECONDS, WHYNOT_STAGE_SECONDS, WHYNOT_STAGE_COST_USD
+        recorded = True
     else:
         lazy: _LazyTreeJev | None = None
         if ask is None:
             lazy = _LazyTreeJev()
             ask = lazy
         try:
-            rows = await _run_fresh(ask, session, raw_dir, out_dir / "tree-all.json")
+            rows, route_seconds, whynot_seconds, whynot_cost_usd = await _run_fresh(
+                ask, session, raw_dir, out_dir / "tree-all.json", results_dir / STAGE1_FILENAME
+            )
         finally:
             if lazy is not None:
                 await lazy.aclose()
+        recorded = False
 
     pair_records = [build_pair_record(row) for row in rows]
-    summary = build_summary(rows, pair_records)
+    summary = build_summary(rows, pair_records, route_seconds, whynot_seconds, whynot_cost_usd)
     by_minister = build_by_minister(rows)
 
     results_dir.mkdir(parents=True, exist_ok=True)
@@ -690,5 +734,5 @@ async def tree(
     _write_json(results_dir / "tree-2024-2025.json", pair_records)
 
     print(format_by_minister_table(by_minister))
-    print(_format_summary(summary))
+    print(_format_summary(summary, recorded))
     return summary

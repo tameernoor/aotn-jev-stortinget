@@ -28,7 +28,6 @@ from jev_stortinget.tree import (
     build_why_questions,
     format_by_minister_table,
     load_ask_questions,
-    load_stage1_asked,
     paragraphs,
     reply_says_tags,
     route_hit,
@@ -38,7 +37,7 @@ from jev_stortinget.tree import (
     whynot_stage,
 )
 
-# --- ask_stage(): stage 1, one request per pair, question only ----------------------
+# --- ask_stage(): stage 1, one request per pair, question and reply -----------------
 
 
 def test_load_ask_questions_has_exactly_the_seven_asks_ids():
@@ -50,7 +49,7 @@ def test_load_ask_questions_has_exactly_the_seven_asks_ids():
         assert spec["type"] == "noul"
 
 
-def test_ask_stage_sends_one_request_per_pair_with_only_the_question():
+def test_ask_stage_sends_one_request_per_pair_with_the_question_and_reply():
     records = [
         Record(1, 1, "m", "m", "MP", "X", None, None, "Q1", "Reply one."),
         Record(2, 2, "m", "m", "MP", "X", None, None, "Q2", "Reply two."),
@@ -62,7 +61,7 @@ def test_ask_stage_sends_one_request_per_pair_with_only_the_question():
     assert set(values) == {1, 2}
     assert values[1]["asks_yes_or_no"] == pytest.approx(0.9)
     assert len(fake.calls) == 2
-    assert set(fake.calls[0]["state"]) == {"question"}  # no reply sent at stage 1
+    assert fake.calls[0]["state"] == {"question": "Q1", "reply": "Reply one."}
     assert set(fake.calls[0]["questions"]) == set(load_ask_questions())
 
 
@@ -333,21 +332,20 @@ def test_route_stage_respects_max_in_flight():
     assert 1 < tracker.peak <= MAX_IN_FLIGHT
 
 
-# --- load_stage1_asked() -------------------------------------------------------------
+# --- write_stage1(): a fresh run's own stage-1 report, one line per id --------------
 
 
-def test_load_stage1_asked_reads_asks_types_at_or_above_the_yes_band(tmp_path):
+def test_write_stage1_writes_valid_json_one_line_per_id_sorted(tmp_path):
+    from jev_stortinget.tree import write_stage1
+
     path = tmp_path / "asks.json"
-    data = {
-        "1": {"asks_yes_or_no": 0.9, "asks_action": 0.5},
-        "2": {"asks_yes_or_no": 0.1},  # nothing recognised
-        "3": {"asks_amount": 0.8, "asks_time": 0.8},  # boundary counts as yes
-    }
-    path.write_text(json.dumps(data), encoding="utf-8")
+    write_stage1(path, {2: {"asks_yes_or_no": 0.1}, 1: {"asks_yes_or_no": 0.9}})
 
-    asked = load_stage1_asked(path)
-
-    assert asked == {1: ["yes_or_no"], 3: ["amount", "time"]}
+    text = path.read_text(encoding="utf-8")
+    assert json.loads(text) == {"1": {"asks_yes_or_no": 0.9}, "2": {"asks_yes_or_no": 0.1}}
+    lines = text.splitlines()
+    assert lines[1].strip().startswith('"1"')  # sorted by id, one entry per line
+    assert lines[2].strip().startswith('"2"')
 
 
 # --- aggregation -----------------------------------------------------------------
@@ -491,11 +489,6 @@ def test_tree_cli_from_rebuilds_outputs_without_any_ask(tmp_path, monkeypatch):
     )
     results_dir = tmp_path / "results-tree"
     monkeypatch.setattr(tree_module, "DEFAULT_RESULTS_DIR", results_dir)
-    stage1_path = tmp_path / "asks.json"
-    stage1_path.write_text(
-        json.dumps({"1": {"asks_yes_or_no": 0.9}, "2": {"asks_yes_or_no": 0.9}}), encoding="utf-8"
-    )
-    monkeypatch.setattr(tree_module, "DEFAULT_STAGE1_PATH", stage1_path)
 
     main(["tree", "--from", str(from_path)])
 
@@ -515,8 +508,6 @@ def test_tree_function_from_path_never_builds_a_jev_client(tmp_path, monkeypatch
 
     from_path = tmp_path / "tree-all.json"
     from_path.write_text(json.dumps([_tree_row()]), encoding="utf-8")
-    stage1_path = tmp_path / "asks.json"
-    stage1_path.write_text(json.dumps({"1": {"asks_yes_or_no": 0.9}}), encoding="utf-8")
 
     def _boom(*args, **kwargs):
         raise AssertionError("a --from run must never build a Jev client")
@@ -525,14 +516,25 @@ def test_tree_function_from_path_never_builds_a_jev_client(tmp_path, monkeypatch
     monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
 
     summary = asyncio.run(
-        tree(
-            from_path=from_path,
-            out_dir=tmp_path / "out",
-            results_dir=tmp_path / "results",
-            stage1_path=stage1_path,
-        )
+        tree(from_path=from_path, out_dir=tmp_path / "out", results_dir=tmp_path / "results")
     )
     assert summary["n_pairs"] == 1
+
+
+def test_tree_from_path_uses_each_rows_own_asked_no_stage1_file_needed(tmp_path):
+    # No results/tree/asks-2024-2025.json in sight (tmp_path is empty); the row's
+    # own "asked" must be enough on its own.
+    from_path = tmp_path / "tree-all.json"
+    row = _tree_row(asked=["facts"], values={"facts_p1": 0.9})
+    from_path.write_text(json.dumps([row]), encoding="utf-8")
+
+    summary = asyncio.run(
+        tree(from_path=from_path, out_dir=tmp_path / "out", results_dir=tmp_path / "results")
+    )
+
+    pair_record = json.loads((tmp_path / "results" / "tree-2024-2025.json").read_text(encoding="utf-8"))[0]
+    assert pair_record["asked"] == ["facts"]
+    assert summary["answered"] == 1
 
 
 # --- silent retries: a stage that loses a request must say so, never guess "no" ----
@@ -678,3 +680,48 @@ def test_build_no_data_quote_short_paragraph_is_unchanged():
     row = _tree_row(paragraphs=["Kort svar uten data."], why={"nodata_p1": 0.9}, follow={})
     entries = build_no_data([row])
     assert entries[0]["quote"] == "Kort svar uten data."
+
+
+# --- end-to-end: the fresh path, stage 1 then route then why-not --------------------
+
+
+def test_tree_fresh_path_runs_stage1_then_route_then_whynot(tmp_path, monkeypatch):
+    import jev_stortinget.tree as tree_module
+
+    records = [
+        Record(1, 1, "m", "m", "MP", "X", None, None, "Q1", "Første avsnitt uten svar."),
+        Record(2, 2, "m", "m", "MP", "X", None, None, "Q2", "Første avsnitt.\nAndre avsnitt som svarer ja."),
+    ]
+    monkeypatch.setattr(tree_module, "load_records", lambda *a, **kw: records)
+
+    # Pair-agnostic (FakeJev answers by question id alone): both pairs ask
+    # yes_or_no; pair 2's reply answers at its second paragraph, pair 1's
+    # doesn't and goes on to why-not, where "later" fires with a date.
+    fake = FakeJev(
+        values={"asks_yes_or_no": 0.9, "yes_or_no_p2": 0.9, "later_p1": 0.9, "date_p1": 0.9}
+    )
+
+    out_dir = tmp_path / "out"
+    results_dir = tmp_path / "results"
+    summary = asyncio.run(tree(ask=fake.ask, out_dir=out_dir, results_dir=results_dir))
+
+    # Stage 1 wrote its own report; nothing else reads it back.
+    asks_written = json.loads((results_dir / "asks-2024-2025.json").read_text(encoding="utf-8"))
+    unasked = {"asks_amount": 0.05, "asks_time": 0.05, "asks_action": 0.05, "asks_why": 0.05, "asks_assessment": 0.05, "asks_facts": 0.05}
+    assert asks_written == {
+        "1": {**unasked, "asks_yes_or_no": 0.9},
+        "2": {**unasked, "asks_yes_or_no": 0.9},
+    }
+
+    pair_records = {
+        r["id"]: r for r in json.loads((results_dir / "tree-2024-2025.json").read_text(encoding="utf-8"))
+    }
+    assert pair_records[2]["verdict"] == "answered"
+    assert pair_records[2]["paragraph_index"] == 1
+    assert pair_records[1]["verdict"] == "later"
+    assert pair_records[1]["date_given"] is True
+
+    assert summary["n_pairs"] == 2
+    assert summary["answered"] == 1
+    assert (out_dir / "tree-all.json").exists()
+    assert len(fake.calls) == 6  # 2 ask + 2 route + 1 why + 1 follow (pair 2 skips why-not)
