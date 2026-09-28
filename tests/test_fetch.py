@@ -36,13 +36,24 @@ class _FakeResponse:
 # --- html_to_text --------------------------------------------------------------------
 
 
-def test_html_to_text_strips_tags_unescapes_entities_and_collapses_whitespace():
-    raw = "Første  del.<br/>Andre del &amp; tredje &oslash;del.\n\n  Siste."
-    assert html_to_text(raw) == "Første del. Andre del & tredje ødel. Siste."
+def test_html_to_text_strips_a_non_paragraph_tag_and_unescapes_entities():
+    raw = "Første  del.<b>Andre del</b> &amp; tredje &oslash;del."
+    assert html_to_text(raw) == "Første del. Andre del & tredje ødel."
 
 
-def test_html_to_text_does_not_glue_words_across_a_stripped_tag():
-    assert html_to_text("word<br/>next") == "word next"
+def test_html_to_text_does_not_glue_words_across_a_stripped_non_paragraph_tag():
+    assert html_to_text("word<b>next") == "word next"
+
+
+def test_html_to_text_turns_br_and_closing_p_into_a_newline():
+    assert html_to_text("word<br/>next") == "word\nnext"
+    assert html_to_text("word<br>next") == "word\nnext"
+    assert html_to_text("word</p>next") == "word\nnext"
+
+
+def test_html_to_text_keeps_paragraph_breaks_and_collapses_intraline_whitespace():
+    raw = "  Para one   has  spaces.<br>Para two.<br/><br/><br/>Para three.</p>Para four.\t\tEnd.  "
+    assert html_to_text(raw) == "Para one has spaces.\nPara two.\n\nPara three.\nPara four. End."
 
 
 def test_html_to_text_on_a_real_reply_with_br_tags_leaves_no_tags():
@@ -51,12 +62,23 @@ def test_html_to_text_on_a_real_reply_with_br_tags_leaves_no_tags():
     assert "<" not in text
     assert ">" not in text
     assert "  " not in text
+    assert "\n" in text
     assert text == text.strip()
 
 
 @pytest.mark.parametrize("value", [None, "", "   ", "<br/>", "<p></p>"])
 def test_html_to_text_handles_none_blank_and_all_tag_input(value):
     assert html_to_text(value) == ""
+
+
+def test_html_to_text_keeps_a_literal_less_than_that_is_not_shaped_like_a_tag():
+    # Real corpus cases (ids 101779, 104928, 106232, 98470): a bare "<" used as a
+    # comparison operator, not entity-escaped. A greedy `<[^>]+>` tag regex would
+    # treat the next unrelated ">" anywhere later in the text as this "tag"'s
+    # close and delete everything in between; requiring a letter right after "<"
+    # (or "</") avoids that.
+    assert html_to_text("P/B<1 og >2") == "P/B<1 og >2"
+    assert html_to_text("< 50 m") == "< 50 m"
 
 
 # --- parse_stortinget_date ------------------------------------------------------------
@@ -154,6 +176,17 @@ def test_fetch_pairs_writes_new_pairs_to_the_cache(tmp_path, monkeypatch):
     cached_path = tmp_path / "2024-2025" / "108815.json"
     assert cached_path.exists()
     assert json.loads(cached_path.read_text(encoding="utf-8"))["id"] == 108815
+    # The write is atomic (tmp file + os.replace): no leftover tmp file after a
+    # clean write.
+    assert not (tmp_path / "2024-2025" / "108815.json.tmp").exists()
+
+
+def test_write_json_atomically_leaves_no_tmp_file_and_is_readable(tmp_path):
+    path = tmp_path / "108815.json"
+    fetch_module._write_json_atomically(path, {"id": 108815, "svar": "hello"})
+
+    assert json.loads(path.read_text(encoding="utf-8")) == {"id": 108815, "svar": "hello"}
+    assert not (tmp_path / "108815.json.tmp").exists()
 
 
 def test_fetch_pairs_makes_no_request_for_an_already_cached_id(tmp_path, monkeypatch):

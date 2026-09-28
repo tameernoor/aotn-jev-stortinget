@@ -32,6 +32,34 @@ def _write_cache(raw_dir: Path, payloads: list[dict]) -> None:
         (cache_dir / f"{payload['id']}.json").write_text(json.dumps(payload), encoding="utf-8")
 
 
+def test_draw_sets_matches_the_golden_ids_for_seed_20250928(tmp_path):
+    """A golden-value regression test: with ids 1..100 (all eligible, sorted),
+    seed 20250928 must draw exactly these ids, in exactly this order. If the
+    seed, the sort key, or the sampling method (e.g. sample() vs shuffle())
+    ever changes, this fails, since either would silently redraw a different
+    dev/holdout split from the same cache."""
+    payloads = [_pair_payload(i) for i in range(1, 101)]
+    _write_cache(tmp_path, payloads)
+
+    dev, holdout = draw_sets(session=SESSION, raw_dir=tmp_path)
+
+    dev_ids = [item["id"] for item in dev]
+    holdout_ids = [item["id"] for item in holdout]
+
+    assert dev_ids == [
+        40, 25, 93, 34, 36, 27, 86, 83, 90, 81,
+        63, 91, 100, 37, 95, 1, 62, 18, 33, 26,
+    ]
+    assert holdout_ids == [
+        92, 19, 21, 20, 82, 51, 70, 88, 12, 4,
+        97, 94, 17, 16, 49, 53, 80, 9, 67, 78,
+        71, 13, 48, 54, 22, 41, 30, 39, 55, 2,
+        32, 38, 60, 47, 84, 66, 68, 24, 42, 64,
+        96, 75, 43, 98, 5, 31, 59, 6, 44, 28,
+        76, 61, 87, 14, 23, 73, 72, 29, 69, 7,
+    ]
+
+
 def test_draw_sets_is_deterministic(tmp_path):
     payloads = [_pair_payload(i) for i in range(1, 101)]
     _write_cache(tmp_path, payloads)

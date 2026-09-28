@@ -5,7 +5,7 @@
     uv run --env-file .env python -m jev_stortinget run --set dev|holdout|all [--out out/] [--cache FILE]
 
 `fetch` pulls the session's list of written questions, then every pair not
-already cached under data/raw/<session>/, at most 4 requests in flight,
+already cached under data/raw/<session>/, at most 2 requests in flight,
 retrying a failed request a few times before giving up on it; a rerun fetches
 nothing new. Prints how many ids were already cached, how many were fetched
 this run, how many still failed, and (reading the now-complete cache) how many

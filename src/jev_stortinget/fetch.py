@@ -26,6 +26,7 @@ for sets.py and anything downstream that needs the normalised data.
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
 import urllib.error
@@ -55,8 +56,10 @@ PROGRESS_INTERVAL = 200
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = REPO_ROOT / "data" / "raw"
 
-_TAG_RE = re.compile(r"<[^>]+>")
-_WS_RE = re.compile(r"\s+")
+_PARAGRAPH_BREAK_RE = re.compile(r"<br\s*/?>|</p\s*>", re.IGNORECASE)
+_TAG_RE = re.compile(r"</?[a-zA-Z][^>]*>")
+_LINE_WS_RE = re.compile(r"[ \t]+")
+_BLANK_LINES_RE = re.compile(r"\n{2,}")
 _DATE_RE = re.compile(r"/Date\((-?\d+)([+-]\d{4})?\)/")
 
 
@@ -98,15 +101,31 @@ class FetchSummary:
 
 def html_to_text(value: str | None) -> str:
     """Turn a Stortinget HTML text field (`sporsmal`, `begrunnelse`, `svar`) into
-    plain text. Tags (the only one seen so far is `<br/>`) become a single space
-    each, so stripping one never glues two words together; entities are then
-    unescaped and runs of whitespace collapse to a single space. None or a
-    blank/all-tag value becomes "" (an empty reply is kept as "", not skipped)."""
+    plain text, keeping paragraph breaks instead of flattening them away.
+
+    `<br>`, `<br/>` and `</p>` become a newline; any other tag (only a handful of
+    stray `<a href=...>`/`</a>`/`<b>`/`</b>` in this corpus) is stripped to a
+    single space instead, so removing one never glues two words together. Tag
+    matching requires a letter right after `<` or `</`, since the corpus is not
+    reliably entity-escaped and has real literal "<" characters that are not
+    tags at all (comparisons like "P/B<1" or "< 50 m" in a table): a greedy
+    `<[^>]+>` would treat the next unrelated ">" anywhere later in the text as
+    this tag's close and delete everything in between.
+
+    After that: HTML entities are unescaped, spaces and tabs collapse to one
+    within each line, each line is stripped, runs of 2+ newlines collapse to
+    exactly one blank line, and the whole result is stripped at the ends. None
+    or a blank/all-tag value becomes "" (an empty reply is kept as "", not
+    skipped)."""
     if not value:
         return ""
-    text = _TAG_RE.sub(" ", value)
+    text = _PARAGRAPH_BREAK_RE.sub("\n", value)
+    text = _TAG_RE.sub(" ", text)
     text = unescape(text)
-    return _WS_RE.sub(" ", text).strip()
+    lines = [_LINE_WS_RE.sub(" ", line).strip() for line in text.split("\n")]
+    text = "\n".join(lines)
+    text = _BLANK_LINES_RE.sub("\n\n", text)
+    return text.strip()
 
 
 def parse_stortinget_date(value: str | None) -> str | None:
@@ -153,6 +172,15 @@ def _cache_dir(session: str, raw_dir: Path | None) -> Path:
 
 def _pair_path(cache_dir: Path, question_id: int) -> Path:
     return cache_dir / f"{question_id}.json"
+
+
+def _write_json_atomically(path: Path, payload: dict) -> None:
+    """Write `payload` to `path` as JSON, atomically: write to a sibling temp
+    file first, then os.replace() it into place, so a crash or interruption
+    mid-write never leaves a truncated or partial cache file behind."""
+    tmp_path = path.with_name(path.name + ".tmp")
+    tmp_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    os.replace(tmp_path, path)
 
 
 def _parse_retry_after(value: str | None) -> float | None:
@@ -234,9 +262,7 @@ def fetch_pairs(
             except FetchError:
                 failed.append(question_id)
             else:
-                _pair_path(cache_dir, question_id).write_text(
-                    json.dumps(payload, ensure_ascii=False), encoding="utf-8"
-                )
+                _write_json_atomically(_pair_path(cache_dir, question_id), payload)
                 fetched += 1
             processed += 1
             if processed % PROGRESS_INTERVAL == 0:
