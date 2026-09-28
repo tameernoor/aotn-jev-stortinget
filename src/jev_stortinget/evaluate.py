@@ -5,9 +5,12 @@ reads: `rows` is results.jsonl's rows (one per pair, holding at least `id`,
 `outcome` and `shadow`), `labels` is one set's labels file (one per id, holding at
 least `id` and `label`, from {answered, premise_corrected, deferred,
 pointed_elsewhere, not_answered}, and optionally `second_choice`, a label that also
-counts as agreement). Only ids present in both are scored; a label with no matching
-row (or the reverse) is silently left out, the same "silently skipped, not counted
-as wrong" convention jev_turbine's evaluate.py uses for its own exclusions.
+counts as agreement). A row with no label is silently left out (the normal case:
+most rows are never labelled at all). A labelled id missing from `rows`, the
+other way around, is not silently dropped: it raises EvaluateError, since it means
+the results and the labels file are talking about different pairs (an incomplete
+or wrong-set run), which is worth failing loudly on rather than quietly scoring
+fewer pairs than the labels file promises.
 
 Reports, per the plan: agreement of `outcome` with `label`, overall and per label; a
 confusion matrix with `unclear` as a column, since it is an outcome value that can
@@ -17,6 +20,16 @@ means not, otherwise unclear) against the label collapsed the same way (answered
 premise_corrected vs the rest), next to the same binary view of `outcome` itself, so
 a README can compare "decomposition vs labels" against "shadow vs labels" on the
 same pairs (see docs/questions-design.md section 3).
+
+Both binary views treat "unclear" as its own outcome, never as a stand-in for
+"not answered": `outcome` is unclear (the rules could not decide) or the pair was
+never sent at all (`no_reply`), and the shadow is unclear (strictly between 0.2
+and 0.8), map to BINARY_UNCLEAR, which agrees with neither BINARY_ANSWERED nor
+BINARY_NOT_ANSWERED. Collapsing unclear into "not answered" would let it silently
+agree with any deferred/pointed_elsewhere/not_answered label, since all three
+collapse to the same "not answered" bucket; an unclear reply that happens to be
+labelled not_answered is not the same claim as a confident not_answered, and
+scoring it as if it agreed would flatter the decomposition.
 """
 
 from __future__ import annotations
@@ -26,7 +39,7 @@ from collections import defaultdict
 from collections.abc import Sequence
 from pathlib import Path
 
-from .rules import ANSWERED, PREMISE_CORRECTED
+from .rules import ANSWERED, NO_REPLY, PREMISE_CORRECTED, UNCLEAR
 from .sets import SETS_DIR
 
 LABELS = ("answered", "premise_corrected", "deferred", "pointed_elsewhere", "not_answered")
@@ -41,10 +54,15 @@ SHADOW_NO = 0.2
 NOTE = (
     "label is the independent reader's judgment; outcome is rules.outcome() run "
     "over Jev's answers. The binary view collapses answered and premise_corrected "
-    "into 'answered' and everything else (including unclear/no_reply) into "
-    "'not_answered', except a shadow value strictly between 0.2 and 0.8, which is "
-    "its own 'unclear' and never counted as agreeing."
+    "into 'answered' and deferred/pointed_elsewhere/not_answered into "
+    "'not_answered'; outcome unclear and no_reply, like a shadow value strictly "
+    "between 0.2 and 0.8, are their own 'unclear' and never counted as agreeing "
+    "with either bucket."
 )
+
+
+class EvaluateError(RuntimeError):
+    """A labels file names an id that has no matching row in `rows`."""
 
 
 def load_labels(set_name: str, sets_dir: Path | None = None) -> list[dict]:
@@ -64,7 +82,9 @@ def _binary_label(label: str) -> str:
 def _binary_outcome(outcome: str) -> str:
     if outcome in (ANSWERED, PREMISE_CORRECTED):
         return BINARY_ANSWERED
-    return BINARY_NOT_ANSWERED  # unclear and no_reply both count as "not answered"
+    if outcome in (UNCLEAR, NO_REPLY):
+        return BINARY_UNCLEAR
+    return BINARY_NOT_ANSWERED  # deferred, pointed_elsewhere, not_answered
 
 
 def _binary_shadow(value: float | None) -> str:
@@ -85,7 +105,10 @@ def _agreement(pairs: Sequence[tuple[str, str]]) -> dict:
 
 def evaluate(rows: Sequence[dict], labels: Sequence[dict]) -> dict:
     by_id = {row["id"]: row for row in rows}
-    scored = [(label, by_id[label["id"]]) for label in labels if label["id"] in by_id]
+    missing = [label["id"] for label in labels if label["id"] not in by_id]
+    if missing:
+        raise EvaluateError(f"labelled ids missing from the results rows: {sorted(missing)}")
+    scored = [(label, by_id[label["id"]]) for label in labels]
 
     agreement = _agreement([(label["label"], row["outcome"]) for label, row in scored])
 

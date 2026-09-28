@@ -8,13 +8,15 @@ import json
 from pathlib import Path
 
 import pytest
-from fakes import FakeJev
+from fakes import ConcurrencyTrackingAsk, FakeJev
 
 from jev_stortinget.jev import JevResult
 from jev_stortinget.run import (
     MAX_IN_FLIGHT,
+    BadAnswerError,
     RunError,
     _questions_hash,
+    _state_hash,
     run,
 )
 
@@ -89,6 +91,7 @@ def test_run_writes_results_and_summary_for_dev_set(tmp_path):
         "read",
         "shadow",
         "values",
+        "model",
     }
     assert row["outcome"] == "answered"
     assert row["reasons"] == ["gives time"]
@@ -96,6 +99,7 @@ def test_run_writes_results_and_summary_for_dev_set(tmp_path):
     assert "states_position" not in row["read"]  # asks_assessment was never confident or used
     assert len(row["values"]) == 18
     assert row["shadow"] == pytest.approx(0.05)
+    assert row["model"] == "fake-jev"
 
     assert set(summary) == {"counts", "calls", "input_tokens", "cost_usd", "wall_seconds", "model_ids", "cache_ignored"}
     assert summary["counts"] == {"answered": 2}
@@ -144,7 +148,9 @@ def test_empty_reply_is_flagged_no_reply_and_never_sent(tmp_path):
     assert rows[2]["read"] == []
     assert rows[2]["shadow"] is None
     assert rows[2]["values"] == {}
+    assert rows[2]["model"] is None
     assert rows[1]["outcome"] == "answered"
+    assert rows[1]["model"] == "fake-jev"
 
 
 # --- a set file naming an id with no cached pair is a clear error -------------------
@@ -184,6 +190,14 @@ def test_second_run_reuses_the_cache_and_makes_no_new_calls(tmp_path):
     cache_payload = json.loads((out_dir / "judgments.json").read_text(encoding="utf-8"))
     assert cache_payload["questions_hash"] == _questions_hash()
     assert set(cache_payload["cache"]) == {"1"}
+    entry = cache_payload["cache"]["1"]
+    assert set(entry) == {"judgments", "model", "state_hash"}
+    assert entry["model"] == "fake-jev"
+    assert len(entry["judgments"]) == 18
+    assert entry["state_hash"] == _state_hash({"question": "Question number 1?", "reply": "A real reply with actual content."})
+
+    # the cache file itself is written atomically: no leftover .tmp file
+    assert not (out_dir / "judgments.json.tmp").exists()
 
 
 def test_cache_is_shared_across_sets_not_reasked_under_all(tmp_path):
@@ -247,10 +261,18 @@ def test_cache_flag_seeds_without_writing_back_to_the_seed_file(tmp_path):
 
 
 async def _selective_fail_ask(state, questions):
-    """Fails for the pair whose question text says so, succeeds for every other one,
-    with the same JevResult shape FakeJev returns."""
+    """Fails for the pair whose question text says so, at once, with no await at
+    all; succeeds for every other one, but only after a real
+    `asyncio.sleep`, so the successes are still genuinely in flight, not yet
+    written to the cache, at the moment the failure raises. This is what makes
+    save-on-failure a real test of `asyncio.gather(..., return_exceptions=True)`
+    waiting for every in-flight request to settle: a `gather` without
+    return_exceptions=True can return as soon as the first exception is seen,
+    while the sleeping successes are still pending, and this test would then
+    catch a regression back to that."""
     if "fail" in state["question"]:
         raise RuntimeError("simulated Jev failure")
+    await asyncio.sleep(0.01)
     judgments = {qid: {"type": "noul", "value": 0.9 if qid in ANSWERS_TIME else 0.05} for qid in questions}
     meta = {
         "model": "fake-jev",
@@ -266,20 +288,83 @@ async def _selective_fail_ask(state, questions):
 
 def test_save_on_failure_keeps_the_answers_that_did_come_back(tmp_path):
     raw_dir, sets_dir, out_dir = tmp_path / "raw", tmp_path / "sets", tmp_path / "out"
-    ok_payload = _pair_payload(1)
-    fail_payload = _pair_payload(2)
+    ok_payload_1 = _pair_payload(1)
+    ok_payload_2 = _pair_payload(2)
+    fail_payload = _pair_payload(3)
     fail_payload["sporsmal"] = "This one should fail?"
-    _write_cache(raw_dir, [ok_payload, fail_payload])
-    _write_set(sets_dir, "dev", [1, 2])
+    _write_cache(raw_dir, [ok_payload_1, ok_payload_2, fail_payload])
+    _write_set(sets_dir, "dev", [1, 2, 3])
 
     with pytest.raises(RuntimeError, match="simulated Jev failure"):
         run_sync("dev", out_dir, ask=_selective_fail_ask, session=SESSION, raw_dir=raw_dir, sets_dir=sets_dir)
 
     # results.jsonl/summary.json were never written for a failed run...
     assert not (out_dir / "dev" / "results.jsonl").exists()
-    # ...but the cache itself was still saved, with the pair that did succeed.
+    # ...but the cache itself was still saved, with both pairs that did succeed,
+    # even though they were still asleep when the failure raised.
     cache_payload = json.loads((out_dir / "judgments.json").read_text(encoding="utf-8"))
-    assert set(cache_payload["cache"]) == {"1"}
+    assert set(cache_payload["cache"]) == {"1", "2"}
+
+
+# --- a Jev answer with the wrong set of ids is rejected, never cached --------------
+
+
+def test_a_jev_answer_missing_an_id_raises_and_is_never_cached(tmp_path):
+    raw_dir, sets_dir, out_dir = tmp_path / "raw", tmp_path / "sets", tmp_path / "out"
+    _write_cache(raw_dir, [_pair_payload(1)])
+    _write_set(sets_dir, "dev", [1])
+    bad = FakeJev(values=ANSWERS_TIME, drop_id="corrects_premise")
+
+    with pytest.raises(BadAnswerError):
+        run_sync("dev", out_dir, ask=bad.ask, session=SESSION, raw_dir=raw_dir, sets_dir=sets_dir)
+
+    assert not (out_dir / "dev" / "results.jsonl").exists()
+    cache_payload = json.loads((out_dir / "judgments.json").read_text(encoding="utf-8"))
+    assert cache_payload["cache"] == {}
+
+
+# --- a changed state (fetch.py's text handling can change) re-asks that pair -------
+
+
+def test_a_changed_state_re_asks_even_though_the_id_is_already_cached(tmp_path):
+    raw_dir, sets_dir, out_dir = tmp_path / "raw", tmp_path / "sets", tmp_path / "out"
+    _write_cache(raw_dir, [_pair_payload(1)])
+    _write_set(sets_dir, "dev", [1])
+
+    first = FakeJev(values=ANSWERS_TIME)
+    run_sync("dev", out_dir, ask=first.ask, session=SESSION, raw_dir=raw_dir, sets_dir=sets_dir)
+    assert len(first.calls) == 1
+
+    # The underlying reply text changes (e.g. a fetch.py fix re-extracts it
+    # differently), but id 1 is still in the cache.
+    _write_cache(raw_dir, [_pair_payload(1, reply="A completely different reply now.")])
+
+    second = FakeJev(values=ANSWERS_TIME)
+    run_sync("dev", out_dir, ask=second.ask, session=SESSION, raw_dir=raw_dir, sets_dir=sets_dir)
+
+    assert len(second.calls) == 1  # re-asked despite the id already being cached
+
+    rows = [
+        json.loads(line) for line in (out_dir / "dev" / "results.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert rows[0]["outcome"] == "answered"  # the fresh answer, not a stale cached one
+
+
+def test_an_unchanged_state_is_not_re_asked(tmp_path):
+    raw_dir, sets_dir, out_dir = tmp_path / "raw", tmp_path / "sets", tmp_path / "out"
+    _write_cache(raw_dir, [_pair_payload(1)])
+    _write_set(sets_dir, "dev", [1])
+
+    first = FakeJev(values=ANSWERS_TIME)
+    run_sync("dev", out_dir, ask=first.ask, session=SESSION, raw_dir=raw_dir, sets_dir=sets_dir)
+
+    # Re-fetching the exact same content (a rerun of fetch, no text change).
+    _write_cache(raw_dir, [_pair_payload(1)])
+
+    second = FakeJev(values=ANSWERS_TIME)
+    run_sync("dev", out_dir, ask=second.ask, session=SESSION, raw_dir=raw_dir, sets_dir=sets_dir)
+
+    assert len(second.calls) == 0
 
 
 # --- concurrency cap -----------------------------------------------------------------
@@ -287,6 +372,17 @@ def test_save_on_failure_keeps_the_answers_that_did_come_back(tmp_path):
 
 def test_max_in_flight_is_20():
     assert MAX_IN_FLIGHT == 20
+
+
+def test_at_most_max_in_flight_requests_run_concurrently(tmp_path):
+    raw_dir, out_dir = tmp_path / "raw", tmp_path / "out"
+    _write_cache(raw_dir, [_pair_payload(i) for i in range(1, 31)])
+    tracker = ConcurrencyTrackingAsk(delay=0.01)
+
+    run_sync("all", out_dir, ask=tracker, session=SESSION, raw_dir=raw_dir, sets_dir=raw_dir)
+
+    assert tracker.calls == 30
+    assert 1 < tracker.peak <= MAX_IN_FLIGHT
 
 
 # --- Jev() is built lazily, only on an actual cache miss ----------------------------

@@ -9,13 +9,23 @@ the output and flagged NO_REPLY; it is never sent to Jev (data/sets/*.json never
 holds one, so this only ever happens under --set all).
 
 One request per pair, with all 18 questions from questions/pair.yaml, at most
-MAX_IN_FLIGHT in flight at once. out_dir/judgments.json caches the raw judgments per
-pair id (as Jev returned them) together with a sha256 of questions/pair.yaml; on a
-hash mismatch the cache is ignored and the run says so, both on stdout and in
-summary.json, rather than silently serving answers to questions that have since
-changed wording. The cache is shared across sets (out_dir/judgments.json, not
-out_dir/<set>/judgments.json), so a pair asked once under --set dev is not asked
-again under --set all.
+MAX_IN_FLIGHT in flight at once. out_dir/judgments.json caches each pair's answer
+(judgments, the model that gave them, and a sha256 of the exact {"question",
+"reply"} state sent) together with a file-level sha256 of questions/pair.yaml
+itself. Two independent guards, for two independent kinds of staleness: a
+questions_hash mismatch (the wording changed) ignores the whole cache, both on
+stdout and in summary.json, rather than silently serving answers to questions
+that have since changed; a per-pair state_hash mismatch (fetch.py's own
+HTML-to-text handling has changed the text at least once already) re-asks just
+that pair. The cache file itself is written atomically (tmp file plus
+os.replace, shared with fetch.py's own per-pair writer) so an interrupted run
+never leaves a truncated cache behind. The cache is shared across sets
+(out_dir/judgments.json, not out_dir/<set>/judgments.json), so a pair asked once
+under --set dev is not asked again under --set all, as long as its state hasn't
+changed since.
+
+A Jev answer that does not name exactly the 18 asked ids is never cached: it
+raises BadAnswerError instead, the same way any other failure does.
 
 The cache is saved in a finally, right after every in-flight request has settled
 (asyncio.gather(..., return_exceptions=True)), so a run that fails partway still
@@ -57,9 +67,10 @@ import yaml
 
 from .evaluate import evaluate, load_labels
 from .fetch import DEFAULT_SESSION, Record, load_records
+from .fetch import _write_json_atomically as write_json_atomically
 from .jev import AskFn, Jev, JevResult
 from .rank import format_table, rank_by_ministry
-from .rules import outcome
+from .rules import NO_REPLY, outcome
 from .sets import SETS_DIR
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -69,7 +80,6 @@ DEFAULT_OUT_DIR = REPO_ROOT / "out"
 SET_NAMES = ("dev", "holdout", "all")
 MAX_IN_FLIGHT = 20
 
-NO_REPLY = "no_reply"
 SHADOW_ID = "gives_what_is_asked"
 
 
@@ -77,10 +87,24 @@ class RunError(RuntimeError):
     """An unusable --set name, or a set file naming an id with no cached pair."""
 
 
-# cache[str(record.id)] holds the raw judgments dict Jev returned for that pair (the
-# same shape as JevResult.judgments): qid -> {"type": "noul", "value": <float>}, one
-# entry per pair id ever asked. Pass a dict in (even {}) to have it filled in place.
-Cache = dict[str, dict[str, dict]]
+class BadAnswerError(RunError):
+    """Jev answered with a different set of question ids than were asked. Raised,
+    never cached: caching a partial or mismatched answer would silently corrupt
+    every later read of that pair."""
+
+
+# cache[str(record.id)] holds one pair's last-asked answer:
+#   "judgments": the raw judgments dict Jev returned (JevResult.judgments' shape,
+#                qid -> {"type": "noul", "value": <float>});
+#   "model": the model that answered (JevResult.meta["model"]), also copied into
+#            each row of results.jsonl;
+#   "state_hash": sha256 of the exact {"question", "reply"} state JSON sent.
+# On load, an entry whose state_hash no longer matches the pair's current state
+# (fetch.py's own HTML-to-text handling has changed at least once already) is
+# treated as stale and re-asked, on top of the file-level questions_hash guard
+# below, which catches a changed questions/pair.yaml instead. Pass a dict in
+# (even {}) to have it filled in place.
+Cache = dict[str, dict]
 
 
 def load_questions(path: Path = QUESTIONS_PATH) -> dict[str, dict]:
@@ -89,6 +113,20 @@ def load_questions(path: Path = QUESTIONS_PATH) -> dict[str, dict]:
 
 def _questions_hash(path: Path = QUESTIONS_PATH) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _state_hash(state: dict) -> str:
+    return hashlib.sha256(json.dumps(state, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
+def _validate_judgment_ids(judgments: dict[str, dict], questions: dict[str, dict]) -> None:
+    """Jev must answer exactly the ids it was asked, no more, no fewer. A partial
+    or extra-id answer is a hard failure, not something to cache and paper over."""
+    got, expected = set(judgments), set(questions)
+    if got != expected:
+        raise BadAnswerError(
+            f"Jev answered {sorted(got)}, expected exactly the {len(expected)} ids asked: {sorted(expected)}"
+        )
 
 
 def _load_cache(path: Path) -> tuple[Cache, bool]:
@@ -105,8 +143,12 @@ def _load_cache(path: Path) -> tuple[Cache, bool]:
 
 
 def _save_cache(path: Path, cache: Cache) -> None:
+    """Writes atomically (tmp file plus os.replace, see fetch._write_json_atomically)
+    so a crash or interruption mid-write never leaves a truncated or partial cache
+    file behind; that matters here more than for fetch.py's per-pair files, since a
+    single judgments.json is shared and rewritten by every run."""
     payload = {"questions_hash": _questions_hash(), "cache": cache}
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    write_json_atomically(path, payload)
 
 
 def _set_ids(set_name: str, sets_dir: Path) -> list[int]:
@@ -172,12 +214,15 @@ async def _ask_one(
     record: Record, ask: AskFn, questions: dict[str, dict], cache: Cache, semaphore: asyncio.Semaphore
 ) -> None:
     key = str(record.id)
-    if key in cache:
-        return
+    state = {"question": record.question, "reply": record.reply}
+    state_hash = _state_hash(state)
+    cached = cache.get(key)
+    if cached is not None and cached.get("state_hash") == state_hash:
+        return  # already asked about exactly this state; a changed state re-asks
     async with semaphore:
-        state = {"question": record.question, "reply": record.reply}
         result = await ask(state, questions)
-    cache[key] = result.judgments
+    _validate_judgment_ids(result.judgments, questions)
+    cache[key] = {"judgments": result.judgments, "model": result.meta.get("model"), "state_hash": state_hash}
 
 
 async def _ask_all(records: Sequence[Record], ask: AskFn, questions: dict[str, dict], cache: Cache) -> None:
@@ -193,11 +238,13 @@ async def _ask_all(records: Sequence[Record], ask: AskFn, questions: dict[str, d
             raise result
 
 
-def _flat_values(raw: dict[str, dict]) -> dict[str, float]:
-    return {qid: judgment["value"] for qid, judgment in raw.items()}
+def _flat_values(judgments: dict[str, dict]) -> dict[str, float]:
+    return {qid: judgment["value"] for qid, judgment in judgments.items()}
 
 
-def _result_row(record: Record, raw: dict[str, dict] | None) -> dict:
+def _result_row(record: Record, entry: dict | None) -> dict:
+    """`entry` is this pair's cache entry ({"judgments", "model", "state_hash"}),
+    or None for a pair never sent to Jev (an empty reply)."""
     base = {
         "id": record.id,
         "number": record.number,
@@ -208,7 +255,7 @@ def _result_row(record: Record, raw: dict[str, dict] | None) -> dict:
         "asked_date": record.asked_date,
         "answered_date": record.answered_date,
     }
-    if raw is None:
+    if entry is None:
         return {
             **base,
             "outcome": NO_REPLY,
@@ -216,8 +263,9 @@ def _result_row(record: Record, raw: dict[str, dict] | None) -> dict:
             "read": [],
             "shadow": None,
             "values": {},
+            "model": None,
         }
-    values = _flat_values(raw)
+    values = _flat_values(entry["judgments"])
     result, reasons, read = outcome(values)
     return {
         **base,
@@ -226,6 +274,7 @@ def _result_row(record: Record, raw: dict[str, dict] | None) -> dict:
         "read": read,
         "shadow": values.get(SHADOW_ID),
         "values": values,
+        "model": entry.get("model"),
     }
 
 

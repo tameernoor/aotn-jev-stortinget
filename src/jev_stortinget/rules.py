@@ -34,6 +34,13 @@ POINTED_ELSEWHERE = "pointed_elsewhere"
 NOT_ANSWERED = "not_answered"
 UNCLEAR = "unclear"
 
+# outcome() itself never returns this: a pair with an empty reply is never asked
+# (see run.py) and so never reaches these rules at all. It lives here anyway,
+# alongside the six real outcomes, because it is a value the "outcome" field in
+# results.jsonl can hold, and both evaluate.py and rank.py need to know it without
+# importing run.py (which itself imports evaluate.py and rank.py).
+NO_REPLY = "no_reply"
+
 OUTCOMES = (ANSWERED, PREMISE_CORRECTED, DEFERRED, POINTED_ELSEWHERE, NOT_ANSWERED, UNCLEAR)
 
 
