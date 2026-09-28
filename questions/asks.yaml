@@ -1,0 +1,53 @@
+# The seven asks_* nouls: what the written question asks for. Jev sees only
+# `question`. This is the tree's first stage (see tree.py); a pair is routed
+# on if any value comes back >= 0.8. Keys "true" and "false" are quoted so
+# YAML keeps them as strings.
+
+asks_amount:
+  type: noul
+  instructions: Does `question` ask how much, how many, how large, or what a sum, cost, revenue, share or count is?
+  criteria:
+    "true": The question asks for a quantity, for example 'hvor mye', 'hvor mange', 'hvor stor andel', 'hva er provenyet', 'hva koster', 'hvor mye bompengefinansiering vil ... kreve'.
+    "false": A number appears in the question only as background ('75 % av ordinær sats', '400 saker') while the question asks something else, or the question asks for a date, a reason, a view or a commitment.
+
+asks_time:
+  type: noul
+  instructions: Does `question` ask when, by when, or how soon something will happen or be presented?
+  criteria:
+    "true": The question asks for a point or period in time, for example 'når blir ... lagt fram', 'innen når', 'hvor lang tid', 'hva er tidsplanen', 'i tide til at Stortinget kan behandle den innen COP16'.
+    "false": The question mentions a date or deadline only as background ('innen 30.6.25' as a fact about the rules) while asking something else, or asks what, why, how much or whether.
+
+asks_yes_or_no:
+  type: noul
+  instructions: Does `question` ask whether something is the case or will be done, so that 'ja' or 'nei' would be a complete answer?
+  criteria:
+    "true": The question is of the form 'Stemmer det at', 'Vil regjeringen', 'Vil statsråden ta initiativ til', 'Er statsråden enig', 'Mener statsråden at', 'Kan statsråden bekrefte at', 'Har statsråden vurdert', where yes or no answers it.
+    "false": The words 'Kan statsråden' or 'Vil statsråden' are only a polite frame for a request to explain, describe, list or state something, for example 'Kan statsråden redegjøre for', 'Kan statsråden gi en oversikt over', 'Kan statsråden forklare hvorfor', 'Vil statsråden gjøre rede for'.
+
+asks_action:
+  type: noul
+  instructions: Does `question` ask what the minister or government will do, how they will ensure or achieve something, or which measures or steps they will take?
+  criteria:
+    "true": The question asks for measures, for example 'hva vil statsråden gjøre', 'hva vil statsråden foreta seg', 'hvordan vil statsråden sikre', 'hvilke tiltak', 'hvilke grep', 'hva gjør statsråden for å', 'hvordan jobber ministeren konkret med'.
+    "false": The question asks whether one named thing will be done (that is a yes/no question), or asks for facts, a number, a date, a reason or an opinion.
+
+asks_why:
+  type: noul
+  instructions: Does `question` ask for the reason or cause of something?
+  criteria:
+    "true": The question asks why, for example 'hvorfor', 'hva er årsaken', 'hva er grunnen', 'hvordan kunne det skje', 'hvordan kan det ha seg at', 'forklare og begrunne hvorfor'.
+    "false": The question asks how something will be done ('hvordan vil statsråden sikre'), what the minister thinks, or for facts, a number or a date, without asking for a cause.
+
+asks_assessment:
+  type: noul
+  instructions: Does `question` ask for the minister's own view, opinion or judgement of something?
+  criteria:
+    "true": The question asks what the minister thinks, for example 'mener statsråden', 'hvordan vurderer statsråden', 'hvilke vurderinger gjør statsråden seg', 'er statsråden fornøyd med', 'er statsråden bekymret', 'hva tenker statsråden om', 'ser statsråden at', 'synes statsråden'.
+    "false": The question asks for facts, a number, a date, a reason or a commitment, without asking for the minister's view.
+
+asks_facts:
+  type: noul
+  instructions: Does `question` ask the minister to give facts, a status, a list, an overview, or a description of what has been done or how something works?
+  criteria:
+    "true": The question asks for an account, for example 'redegjøre for', 'hva er status', 'hva er faktisk flyttet', 'hvilke ... er avdekket', 'gi en oversikt over', 'legge frem trafikkdata', 'hvordan kan stiftelser', 'hvilke vurderinger som gjøres'.
+    "false": The question asks only for a reason, an opinion, a commitment, a quantity or a date.
