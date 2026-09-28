@@ -18,7 +18,7 @@ Jev gets a **state** (the texts) and **typed questions**, and returns one calibr
 
 The questions come in three rounds. Code decides which questions each reply gets in the next round.
 
-**1. What does the question ask for?** Seven nouls about the question text: `asks_amount`, `asks_time`, `asks_yes_or_no`, `asks_action`, `asks_why`, `asks_assessment`, `asks_facts` (`questions/pair.yaml`). Several can be yes.
+**1. What does the question ask for?** Seven nouls about the question text: `asks_amount`, `asks_time`, `asks_yes_or_no`, `asks_action`, `asks_why`, `asks_assessment`, `asks_facts` (`questions/asks.yaml`). Several can be yes.
 
 **2. Does a paragraph give it?** Code splits the reply into paragraphs and **generates** one question per paragraph for each thing asked. All of them go to Jev in a single request, for example:
 
@@ -84,8 +84,7 @@ Each request carries all of one reply's questions, and Jev answers them in paral
 ```
 cp .env.example .env                                   # set TYPESAFE_API_KEY
 uv run python -m jev_stortinget fetch                  # download the session
-uv run --env-file .env python -m jev_stortinget run --set all   # step 1
-uv run --env-file .env python -m jev_stortinget tree            # steps 2 and 3
+uv run --env-file .env python -m jev_stortinget tree            # steps 1, 2 and 3
 uv run python -m jev_stortinget tree --from out/tree-all.json   # rebuild results/, no Jev calls
 ```
 
