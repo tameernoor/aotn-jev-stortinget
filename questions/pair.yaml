@@ -1,0 +1,141 @@
+# Written question and ministerial reply. Jev sees `question` (the MP's question as
+# posed) and `reply` (the minister's answer), both in Norwegian, never the MP's
+# reasoning, the ministry, or any label. Each question asks one thing about the words
+# of one text; rules.py pairs the asks_* answers with their reply counterparts and
+# takes the OR. All eighteen are sent in one request per pair. The last question is a
+# shadow: written to the output, never read by the rules.
+# Keys "true" and "false" are quoted so YAML keeps them as strings.
+
+# --- What the question asks for (about `question` only) ---
+
+asks_amount:
+  type: noul
+  instructions: Does `question` ask how much, how many, how large, or what a sum, cost, revenue, share or count is?
+  criteria:
+    "true": The question asks for a quantity, for example 'hvor mye', 'hvor mange', 'hvor stor andel', 'hva er provenyet', 'hva koster', 'hvor mye bompengefinansiering vil ... kreve'.
+    "false": A number appears in the question only as background ('75 % av ordinær sats', '400 saker') while the question asks something else, or the question asks for a date, a reason, a view or a commitment.
+
+asks_time:
+  type: noul
+  instructions: Does `question` ask when, by when, or how soon something will happen or be presented?
+  criteria:
+    "true": The question asks for a point or period in time, for example 'når blir ... lagt fram', 'innen når', 'hvor lang tid', 'hva er tidsplanen', 'i tide til at Stortinget kan behandle den innen COP16'.
+    "false": The question mentions a date or deadline only as background ('innen 30.6.25' as a fact about the rules) while asking something else, or asks what, why, how much or whether.
+
+asks_yes_or_no:
+  type: noul
+  instructions: Does `question` ask whether something is the case or will be done, so that 'ja' or 'nei' would be a complete answer?
+  criteria:
+    "true": The question is of the form 'Stemmer det at', 'Vil regjeringen', 'Vil statsråden ta initiativ til', 'Er statsråden enig', 'Mener statsråden at', 'Kan statsråden bekrefte at', 'Har statsråden vurdert', where yes or no answers it.
+    "false": The words 'Kan statsråden' or 'Vil statsråden' are only a polite frame for a request to explain, describe, list or state something, for example 'Kan statsråden redegjøre for', 'Kan statsråden gi en oversikt over', 'Kan statsråden forklare hvorfor', 'Vil statsråden gjøre rede for'.
+
+asks_action:
+  type: noul
+  instructions: Does `question` ask what the minister or government will do, how they will ensure or achieve something, or which measures or steps they will take?
+  criteria:
+    "true": The question asks for measures, for example 'hva vil statsråden gjøre', 'hva vil statsråden foreta seg', 'hvordan vil statsråden sikre', 'hvilke tiltak', 'hvilke grep', 'hva gjør statsråden for å', 'hvordan jobber ministeren konkret med'.
+    "false": The question asks whether one named thing will be done (that is a yes/no question), or asks for facts, a number, a date, a reason or an opinion.
+
+asks_why:
+  type: noul
+  instructions: Does `question` ask for the reason or cause of something?
+  criteria:
+    "true": The question asks why, for example 'hvorfor', 'hva er årsaken', 'hva er grunnen', 'hvordan kunne det skje', 'hvordan kan det ha seg at', 'forklare og begrunne hvorfor'.
+    "false": The question asks how something will be done ('hvordan vil statsråden sikre'), what the minister thinks, or for facts, a number or a date, without asking for a cause.
+
+asks_assessment:
+  type: noul
+  instructions: Does `question` ask for the minister's own view, opinion or judgement of something?
+  criteria:
+    "true": The question asks what the minister thinks, for example 'mener statsråden', 'hvordan vurderer statsråden', 'hvilke vurderinger gjør statsråden seg', 'er statsråden fornøyd med', 'er statsråden bekymret', 'hva tenker statsråden om', 'ser statsråden at', 'synes statsråden'.
+    "false": The question asks for facts, a number, a date, a reason or a commitment, without asking for the minister's view.
+
+asks_facts:
+  type: noul
+  instructions: Does `question` ask the minister to give facts, a status, a list, an overview, or a description of what has been done or how something works?
+  criteria:
+    "true": The question asks for an account, for example 'redegjøre for', 'hva er status', 'hva er faktisk flyttet', 'hvilke ... er avdekket', 'gi en oversikt over', 'legge frem trafikkdata', 'hvordan kan stiftelser', 'hvilke vurderinger som gjøres'.
+    "false": The question asks only for a reason, an opinion, a commitment, a quantity or a date.
+
+# --- What the reply gives (about `reply`, for the thing `question` asks about) ---
+
+states_amount:
+  type: noul
+  instructions: Does `reply` state a number, sum, share or quantity for the thing that `question` asks how much, how many or how large?
+  criteria:
+    "true": A figure or a bounded estimate for the asked quantity, for example 'om lag 105 mill. kroner', 'minst 200 millionar kroner', '3,7 mrd. 2024-kr', a table of the figures, or a statement that the requested figures are attached ('vedlagt').
+    "false": Numbers only about other things (budget lines, years, document numbers such as 'Prop. 1 S'), a global or unrelated figure instead of the one asked, or a statement that the figure cannot or will not be given ('har ikke grunnlag for å kvantifisere', 'ser det ikke som hensiktsmessig å gi noe anslag').
+
+states_time:
+  type: noul
+  instructions: Does `reply` state when the thing that `question` asks about will happen, be decided or be presented?
+  criteria:
+    "true": A date, month, season, year, or a named session or event that fixes the time, for example 'våren 2024', 'før sommeren', 'i vårsesjonen', 'tidlig høst 2024', 'innen utgangen av 2026', 'i forbindelse med statsbudsjettet for 2025'.
+    "false": Only 'så snart som mulig', 'snart', 'på sikt', 'i tide' or 'når arbeidet er ferdig' with no season, session or date, or dates about other things such as when a report was received or a law took effect.
+
+says_yes_or_no:
+  type: noul
+  instructions: Does `reply` affirm or deny the thing that `question` asks whether?
+  criteria:
+    "true": The reply says yes or no in words ('Nei,', 'Ja,', 'Det stemmer', 'Det er ikke riktig', 'Det er ikkje rett') or in substance, by stating that the thing asked about will be done or has been decided ('Regjeringen vil legge frem', 'UDI ble instruert om å innvilge'), or that it will not ('Jeg ser ikke grunnlag for å endre', 'Forslaget omfatter ikke barnehager som eies av et aksjeselskap', 'Det er ikke satt av midler').
+    "false": The reply describes the topic, the rules or the process, says the matter is being or will be considered ('kan være gode grunner til å vurdere', 'vil bli vurdert'), or answers a different question, without affirming or denying the thing asked.
+
+names_action:
+  type: noul
+  instructions: Does `reply` name a concrete measure that the minister, the government, the ministry or an agency it directs has taken, decided or will take on the thing that `question` asks about?
+  criteria:
+    "true": A specific step with an actor, for example an instruction or order given, a bill or white paper announced, money set aside ('satt av 240 millionar kroner'), a review or working group commissioned with a mandate, a meeting called, a dialogue started with named parties, a directorate told to do something.
+    "false": General intent or attitude ('vi jobber for', 'har høy prioritet', 'følger situasjonen nøye', 'vil vurdere'), measures by other bodies reported as information, or measures on another topic than the one asked.
+
+gives_reason:
+  type: noul
+  instructions: Does `reply` state a cause or reason for the specific thing that `question` asks why?
+  criteria:
+    "true": A reason is given for the thing asked, for example 'fordi', 'årsaken er', 'begrunnelsen er', 'forklaringen er', 'skyldes', 'bakgrunnen for forslaget er', or a sentence that plainly says why.
+    "false": The reply describes what the rules or the process are without saying why, gives background about the topic, or explains something other than what was asked why.
+
+states_position:
+  type: noul
+  instructions: Does `reply` state the minister's own view on the specific matter that `question` asks them to assess?
+  criteria:
+    "true": The minister takes a side on the matter asked, for example 'jeg mener', 'etter min oppfatning', 'eg meiner', 'jeg er enig med representanten i', 'jeg deler ikke', 'jeg ser ikke grunnlag for', 'jeg er fornøyd med', 'jeg er ikke fornøyd', 'regjeringen mener', or a sentence that plainly says what the minister thinks of it.
+    "false": The reply describes the rules, the process or what others think (an agency, a committee, the EU), states a general value ('jeg er opptatt av at', 'regjeringen tar dette på alvor'), or says the matter will be assessed, without giving the minister's view on the thing asked.
+
+gives_facts:
+  type: noul
+  instructions: Does `reply` give the facts, status, list, overview or description that `question` asks for?
+  criteria:
+    "true": The reply states the facts, figures, status or steps asked about, gives the list or overview, or says the requested overview is attached ('vedlagt').
+    "false": The reply gives general background, describes the process that will later produce the facts, refers to an earlier reply or document without repeating its content ('viser til mitt svar på spørsmål 3087'), or describes a different matter.
+
+# --- The escape outcomes (about `reply`) ---
+
+corrects_premise:
+  type: noul
+  instructions: Does `reply` say that a factual claim or assumption made in `question` is wrong or inaccurate?
+  criteria:
+    "true": The reply says a fact stated or assumed in the question is not correct, for example 'Det er ikke riktig, slik det hevdes i spørsmålet', 'det stemmer ikke at', 'det stemmer ikkje at', 'uttalelsen gir ikke et riktig bilde', 'det må være gjort en regnefeil', 'det er ikke slik å forstå at'.
+    "false": The reply confirms the claim ('Det er riktig som representanten er inne på', 'Det stemmer at'), disagrees with the MP's opinion or conclusion rather than a fact, restates or reinterprets the question ('Jeg går ut fra at representanten mener'), or adds nuance without saying anything in the question was wrong.
+
+defers:
+  type: noul
+  instructions: Does `reply` say that the thing `question` asks about will be considered, assessed, decided or reported on later, or that a review, report, committee or process must finish first?
+  criteria:
+    "true": The reply puts the thing asked into the future, for example 'vil komme tilbake til', 'vil kome attende til', 'vurderes', 'er til vurdering', 'regjeringen vurderer hvordan', 'avvente utvalgets utredning', 'vil bli varslet i den kommende meldingen', 'vil bli vurdert i forbindelse med', 'dette må sees i sammenheng med de ordinære budsjettprosessene'.
+    "false": The reply gives the thing asked now, mentions a forthcoming report or process about a different matter, says work was already completed, or says the thing will not be done or cannot be given at all.
+
+points_elsewhere:
+  type: noul
+  instructions: Does `reply` say that a body other than the minister and the ministry is responsible for the thing `question` asks about, or that the ministry does not decide it?
+  criteria:
+    "true": The reply places the responsibility or decision with another body, for example 'det er X som har ansvaret', 'dette avgjøres av', 'departementet vurderer ikke eller tar ikke stilling til', 'det er opp til kommunen', 'det er styret og ledelsen i selskapet som har ansvaret', 'Riksadvokatembetet har det øverste faglige ansvaret', 'Statnett er selv ansvarlig'.
+    "false": Another minister answers on behalf of the one asked or the question was transferred as 'rette vedkommende' (that is still the government answering), the reply quotes an agency's information as its own answer ('Statens vegvesen opplyser at'), or the reply names who carries out the work without saying the decision is theirs.
+
+# --- Shadow (both texts). Written to the output, never read by the rules. ---
+
+gives_what_is_asked:
+  type: noul
+  instructions: Does `reply` give the specific thing that `question` asks for?
+  criteria:
+    "true": The reply states the number, date, yes or no, measure, reason, view or facts that the question asks for, even briefly or late in the text.
+    "false": The reply discusses the topic, gives background, or says the matter will be handled later, without giving the thing asked.
