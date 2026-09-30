@@ -53,11 +53,11 @@ This is a classifier defined at runtime. The question ids and their count change
 | Says the figures don't exist | 130, of which 9 promise to start collecting |
 | Says the minister can't comment | 81 |
 
-The "later", "someone else's job", "figures don't exist" and "can't comment" rows only count the 1,885 replies where no paragraph gave what was asked. The lists, with the deciding paragraph for each entry, are in `results/tree/`. Counts per minister are in `by-minister.json`.
+The "later", "someone else's job", "figures don't exist" and "can't comment" rows only count the 1,885 replies where no paragraph gave what was asked. Of those, 593 give none of these reasons: in 195 the reply seems to answer a different question, 75 have nothing Jev could find, and 323 stayed unsure. The lists, with the deciding paragraph for each entry, are in `results/tree/`. Counts per minister are in `by-minister.json`.
 
 ## How far to trust it
 
-An independent reader checked 15 random replies per outcome, blind. The reader was a separate AI model session that saw only the question, the reply and the label definitions.
+An independent reader checked 15 random replies per outcome, blind. The reader was a separate AI model session that saw only the question, the reply and the label definitions. A reply counts as agreed when Jev's outcome was the reader's first or second choice.
 
 | Jev found | Reader agreed |
 |---|---|
@@ -66,6 +66,8 @@ An independent reader checked 15 random replies per outcome, blind. The reader w
 | later | 13 / 15 |
 | someone else's job | 12 / 15 |
 | no data | 12 / 15 |
+| no answer, no reason given | 3 / 15 |
+| answers a different question | 1 / 15 |
 
 Jev is reliable on what a paragraph says. It is not reliable on whether a whole reply failed to answer: of 90 sampled replies with no paragraph that gives what was asked, the reader still judged 39 as answered. So this project reports what replies contain, not which questions went unanswered. The data is in `results/tree/blind-check.json`.
 
