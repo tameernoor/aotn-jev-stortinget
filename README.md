@@ -73,16 +73,7 @@ Jev is reliable on what a paragraph says. It is not reliable on whether a whole 
 
 ## Cost
 
-Each request carries all of one reply's questions, and Jev answers them in parallel. Up to 20 requests run at once.
-
-| | Requests | Questions answered | Cost | Time |
-|---|---|---|---|---|
-| Step 1: what does the question ask for? | 3,234 | 22,638 | not separable | not separable |
-| Step 2: does a paragraph give it? | 3,111 | 31,567 | $0.29 | 96 s |
-| Step 3: what does it say instead? | 3,337 | 45,570 | $0.385 | 98 s |
-| Total (steps 2 and 3) | 6,448 | 77,137 | $0.675 | 194 s |
-
-Step 1's values come from an earlier run that asked these seven questions alongside eleven others in the same request, $0.55 for the whole session. Neither cost nor time splits out to step 1 alone, so both are left out of the total above.
+Checking every paragraph of all 3,111 replies took 77,137 yes/no questions in 6,448 requests. It cost $0.68 and took just over 3 minutes, with up to 20 requests running at once.
 
 ## How to run
 
