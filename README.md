@@ -86,4 +86,4 @@ uv run python -m jev_stortinget tree --from out/tree-all.json   # rebuild result
 
 ## Data and licence
 
-The data comes from [data.stortinget.no](https://data.stortinget.no/). It is open under the Norwegian Licence for Open Government Data (NLOD), provided Stortinget is credited as the source ([terms](https://data.stortinget.no/om-datatjenesten/bruksvilkar/)). The texts are Norwegian. The service rate-limits bursts, so `fetch` keeps 2 requests in flight and backs off on 429.
+The data comes from [data.stortinget.no](https://data.stortinget.no/). It is open under the Norwegian Licence for Open Government Data (NLOD), provided Stortinget is credited as the source ([terms](https://data.stortinget.no/om-datatjenesten/bruksvilkar/)). The texts are Norwegian. The service rate-limits bursts, so `fetch` keeps 2 requests in flight and backs off on 429. The whole session is also available as [one zip](https://github.com/tameernoor/aotn-jev-stortinget/releases/tag/data-2024-2025); unzip it into `data/raw/` to skip `fetch`.
